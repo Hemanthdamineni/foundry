@@ -506,3 +506,203 @@ Where:
 * workflows = user-facing behavior
 
 That separation is the correct long-term architecture.
+
+# Recommended External MCPs for Ai-Agent-Server
+
+These are the actual MCP server names/projects you should consider integrating.
+
+---
+
+# Core Runtime MCPs (Install by Default)
+
+| MCP Server              | Actual Project / Package                                                                                                           |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Filesystem MCP          | [Filesystem MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem?utm_source=chatgpt.com)           |
+| Git MCP                 | [Git MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/git?utm_source=chatgpt.com)                         |
+| GitHub MCP              | [GitHub MCP Server](https://github.com/github/github-mcp-server?utm_source=chatgpt.com)                                            |
+| Terminal MCP            | [Shell / Terminal MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/shell?utm_source=chatgpt.com)          |
+| Docker MCP              | [Docker MCP Toolkit](https://github.com/docker/mcp-toolkit?utm_source=chatgpt.com)                                                 |
+| Playwright MCP          | [Microsoft Playwright MCP](https://github.com/microsoft/playwright-mcp?utm_source=chatgpt.com)                                     |
+| Fetch MCP               | [Fetch MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch?utm_source=chatgpt.com)                     |
+| Memory MCP              | [Memory MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory?utm_source=chatgpt.com)                   |
+| Sequential Thinking MCP | [Sequential Thinking MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking?utm_source=chatgpt.com) |
+| PostgreSQL MCP          | [Postgres MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/postgres?utm_source=chatgpt.com)               |
+| SQLite MCP              | [SQLite MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite?utm_source=chatgpt.com)                   |
+
+---
+
+# Strongly Recommended Engineering MCPs
+
+| MCP Server     | Actual Project / Package                                                                                               |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Browser MCP    | [Playwright MCP](https://playwright.dev/docs/getting-started-mcp?utm_source=chatgpt.com)                               |
+| Puppeteer MCP  | [Puppeteer MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer?utm_source=chatgpt.com) |
+| Redis MCP      | [Redis MCP Server](https://github.com/redis/mcp-redis?utm_source=chatgpt.com)                                          |
+| Qdrant MCP     | [Qdrant MCP Server](https://github.com/qdrant/mcp-server-qdrant?utm_source=chatgpt.com)                                |
+| Weaviate MCP   | [Weaviate MCP Server](https://github.com/weaviate/weaviate-mcp-server?utm_source=chatgpt.com)                          |
+| Kubernetes MCP | [Kubernetes MCP Server](https://github.com/Flux159/mcp-server-kubernetes?utm_source=chatgpt.com)                       |
+| Terraform MCP  | [Terraform MCP Server](https://github.com/hashicorp/terraform-mcp-server?utm_source=chatgpt.com)                       |
+| Slack MCP      | [Slack MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/slack?utm_source=chatgpt.com)         |
+| Notion MCP     | [Notion MCP Server](https://github.com/makenotion/notion-mcp-server?utm_source=chatgpt.com)                            |
+| Linear MCP     | [Linear MCP Server](https://github.com/linear/linear-mcp-server?utm_source=chatgpt.com)                                |
+| Figma MCP      | [Figma MCP Server](https://github.com/figma/figma-mcp?utm_source=chatgpt.com)                                          |
+
+---
+
+# AI / LLM MCPs
+
+| MCP Server             | Actual Project / Package                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| OpenAI MCP             | [OpenAI MCP Examples](https://github.com/openai/openai-agents-python/tree/main/examples/mcp?utm_source=chatgpt.com) |
+| Ollama MCP             | [Ollama MCP Server](https://github.com/ollama/ollama-mcp?utm_source=chatgpt.com)                                    |
+| vLLM MCP               | [vLLM MCP Integrations](https://github.com/vllm-project/vllm?utm_source=chatgpt.com)                                |
+| Anthropic MCP Examples | [Anthropic MCP Docs](https://docs.anthropic.com/en/docs/agents-and-tools/mcp?utm_source=chatgpt.com)                |
+| Embedding MCP          | [Embedding MCP Examples](https://github.com/modelcontextprotocol/servers?utm_source=chatgpt.com)                    |
+
+---
+
+# Research & Knowledge MCPs
+
+| MCP Server          | Actual Project / Package                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Brave Search MCP    | [Brave Search MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search?utm_source=chatgpt.com) |
+| ArXiv MCP           | [ArXiv MCP Server](https://github.com/blazickjp/arxiv-mcp-server?utm_source=chatgpt.com)                              |
+| PDF MCP             | [PDF MCP Servers Collection](https://github.com/punkpeye/awesome-mcp-servers?utm_source=chatgpt.com)                  |
+| OCR MCP             | [OCR MCP Servers Collection](https://github.com/punkpeye/awesome-mcp-servers?utm_source=chatgpt.com)                  |
+| Knowledge Graph MCP | [Knowledge Graph MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/memory?utm_source=chatgpt.com)    |
+
+---
+
+# Observability MCPs
+
+| MCP Server        | Actual Project / Package                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| OpenTelemetry MCP | [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector?utm_source=chatgpt.com) |
+| Sentry MCP        | [Sentry MCP Server](https://github.com/sentry/sentry-mcp?utm_source=chatgpt.com)                  |
+| Grafana MCP       | [Grafana MCP Server](https://github.com/grafana/mcp-grafana?utm_source=chatgpt.com)               |
+| Logging MCP       | [MCP Logging Servers](https://github.com/modelcontextprotocol/servers?utm_source=chatgpt.com)     |
+
+---
+
+# Security MCPs
+
+| MCP Server  | Actual Project / Package                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| Vault MCP   | [Vault MCP Server](https://github.com/hashicorp/vault-mcp-server?utm_source=chatgpt.com) |
+| Semgrep MCP | [Semgrep MCP Integrations](https://github.com/semgrep/semgrep?utm_source=chatgpt.com)    |
+| Snyk MCP    | [Snyk MCP Server](https://github.com/snyk/mcp-server?utm_source=chatgpt.com)             |
+
+---
+
+# Recommended Install Packs
+
+---
+
+## `core`
+
+```text id="8d3v9u"
+filesystem
+git
+github
+shell
+docker
+playwright
+fetch
+memory
+postgres
+sqlite
+```
+
+---
+
+## `research`
+
+```text id="7j1zpc"
+brave-search
+arxiv
+pdf
+ocr
+fetch
+```
+
+---
+
+## `infra`
+
+```text id="fz7r7m"
+docker
+kubernetes
+terraform
+redis
+postgres
+```
+
+---
+
+## `observability`
+
+```text id="m9xg1s"
+opentelemetry
+grafana
+sentry
+logging
+```
+
+---
+
+## `security`
+
+```text id="4f2mka"
+vault
+semgrep
+snyk
+```
+
+---
+
+## `ai`
+
+```text id="y2x14h"
+ollama
+openai
+embedding
+qdrant
+weaviate
+```
+
+---
+
+# Most Important MCPs For Your Project
+
+If prioritizing realistically:
+
+| Tier   | MCPs                                      |
+| ------ | ----------------------------------------- |
+| Tier 1 | filesystem, shell, git, github, docker    |
+| Tier 2 | playwright, postgres, redis, fetch        |
+| Tier 3 | qdrant, brave-search, sequential-thinking |
+| Tier 4 | kubernetes, terraform, sentry             |
+| Tier 5 | enterprise integrations                   |
+
+---
+
+# Important Design Advice
+
+Do not install:
+
+* 100 MCPs immediately
+* overlapping MCPs
+* ungoverned community MCPs
+* untrusted execution MCPs
+
+Your runtime should:
+
+* whitelist MCPs
+* sandbox execution
+* validate outputs
+* audit tool usage
+* route via tool-gateway
+
+especially because malicious MCPs are already becoming a real security problem. ([arxiv.org][1])
+
+[1]: https://arxiv.org/abs/2604.01905?utm_source=chatgpt.com "From Component Manipulation to System Compromise: Understanding and Detecting Malicious MCP Servers"
