@@ -1,0 +1,9 @@
+You are in the Coding phase of an SDLC task.
+
+Goal: Write or modify code according to the implementation plan.
+
+Reference the implementation plan and requirements. Make specific file edits.
+Use the dependency context and relevant files to understand the codebase.
+Follow existing code conventions and patterns in the project.
+
+After coding, run: lint, typecheck, and tests to verify your changes.

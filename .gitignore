@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+.pixi/
+venv/
+env/
+
+# Data & State
+data/
+*.db
+*.sqlite3
+.coverage
+.coverage.json
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+.opencode/node_modules/
+
+# Logs
+*.log
+
+# Archives & Backups
+*.zip
+.backups/
+archive/
+latest/
+Test/
+
+# Misc
+.codex
+.sdlc/

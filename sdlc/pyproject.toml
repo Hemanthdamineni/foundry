@@ -1,0 +1,199 @@
+[project]
+name = "sdlc"
+version = "0.1.0"
+description = "Orchestrated SDLC agent server for multi-LLM code reviews via opencode"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0",
+    "aiosqlite>=0.20.0",
+    "httpx>=0.27.0",
+]
+
+[project.scripts]
+sdlc-mcp = "sdlc.cli.main:cli"
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.0.0"]
+test = ["pytest>=8.0.0", "pytest-asyncio>=0.24.0"]
+dev = [
+    "sdlc[test]",
+    "ruff>=0.9.0",
+    "mypy>=1.15.0",
+    "pre-commit>=4.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sdlc", "sdlc.*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [
+    ".pixi",
+    ".venv",
+    ".git",
+    ".opencode",
+    "__pycache__",
+    ".ruff_cache",
+    ".mypy_cache",
+    "configs",
+    "data",
+    "graphs",
+    "docs",
+    "agents",
+    "archive",
+    "latest",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D203",    # conflict with D211
+    "D213",    # conflict with D212
+    "D406",    # conflict with D407
+    "D407",    # conflict with D406
+    "EM101",   # allow str exceptions in non-public code
+    "EM102",   # allow str exception args in non-public code
+    "FIX002",  # allow TODO comments
+    "TD002",   # allow missing author in TODO
+    "TD003",   # allow missing issue in TODO
+    "ANN101",  # type self
+    "ANN102",  # type cls
+    "ANN401",  # allow Any in type hints
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",    # allow assert
+    "ANN001",  # allow untyped args in tests
+    "ANN201",  # allow untyped returns in tests
+    "ANN204",  # allow untyped __init__ in tests
+    "ANN401",  # allow Any in tests
+    "D100",    # no docstrings required in tests
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "PLC0415", # allow nested imports in tests
+    "PLR2004", # allow magic values in tests
+    "TC003",   # allow typing imports at top level in tests
+    "COM812",  # trailing commas optional in tests
+    "E501",    # integration request payloads are easier to read inline
+    "S603",    # subprocess is required for stdio MCP integration tests
+    "TRY003",  # assertion messages in tests may include response payloads
+    "ARG002",  # fixture args can document temp workspace ownership
+    "ANN202",  # nested helpers in integration tests stay local
+    "PTH110",  # subprocess python path fallback uses simple os.path probe
+    "SLF001",  # tests may patch private seams to avoid live model calls
+]
+"**/__init__.py" = [
+    "D104",    # empty init files for future-phase subpackages
+]
+"__main__.py" = [
+    "D100",    # TODO placeholder for Phase 1
+    "D103",
+]
+"config.py" = [
+    "D101",    # Pydantic models are self-documenting
+    "D102",
+]
+"models.py" = [
+    "D101",
+]
+"exceptions.py" = [
+    "D107",
+]
+"log.py" = [
+    "D102",
+]
+"engine/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"runtime/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"adapters/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"validators/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+    "TC001",
+]
+"adapters/tools/graphify.py" = [
+    "ASYNC240", # asyncio.to_thread hangs in the target Python 3.14 sandbox
+]
+"adapters/tools/tree_sitter.py" = [
+    "ASYNC240",
+]
+"engine/dependency_graph.py" = [
+    "ASYNC240",
+]
+"runtime/pipelines/default.py" = [
+    "ASYNC240",
+]
+"cli/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+    "INP001",  # cli/ is a namespace package-like dir, but it has __init__.py
+    "TRY003",  # CLI messages don't need long exception messages
+]
+"templates/**" = [
+    "D100",
+    "D103",
+]
+"adapters/execution/sandbox.py" = [
+    "ASYNC221", # subprocess.run is used deliberately; async subprocess hangs in this sandbox
+    "S602",     # this adapter exists to execute user-supplied shell commands
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
+filterwarnings = ["error"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = false
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "conftest"]
+ignore_errors = true

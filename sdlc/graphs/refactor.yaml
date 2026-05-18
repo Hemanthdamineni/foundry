@@ -1,0 +1,23 @@
+phases:
+  - Chatting
+  - Planning
+  - Coding
+  - Review
+  - Testing
+  - Done
+
+transitions:
+  - from: Chatting
+    to: Planning
+  - from: Chatting
+    to: Done
+  - from: Planning
+    to: Coding
+  - from: Coding
+    to: Review
+  - from: Review
+    to: Coding
+  - from: Review
+    to: Testing
+  - from: Testing
+    to: Done

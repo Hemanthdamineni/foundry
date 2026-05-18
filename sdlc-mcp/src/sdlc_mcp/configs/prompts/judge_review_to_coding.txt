@@ -1,0 +1,16 @@
+Evaluate the Review phase output. The review found issues that need fixing.
+The output must be sent back to Coding for revision.
+
+Check that:
+1. All identified issues are clearly described with severity
+2. Specific "Must Fix" items are actionable
+3. The review is constructive and specific, not vague
+
+Output:
+{output}
+
+Return a JSON object with:
+- "passed": true if the review is actionable and can be sent back to coding
+- "reason": concise explanation of the verdict
+- "issues": list of specific problems found (empty if passed)
+- "severity": "info", "warning", "error", or "critical"

@@ -1,0 +1,9 @@
+.sdlc/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+data/
+build/
+src/sdlc_mcp.egg-info/
+__pycache__/
+*.py[cod]

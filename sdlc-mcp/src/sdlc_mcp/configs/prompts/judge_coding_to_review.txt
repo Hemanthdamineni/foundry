@@ -1,0 +1,16 @@
+Evaluate the Coding phase output before it transitions to Review.
+
+Check that:
+1. The code changes are consistent with the spec and plan
+2. All required files were modified or created
+3. The implementation compiles and follows project conventions
+4. No obvious bugs or security issues are introduced
+
+Output:
+{output}
+
+Return a JSON object with:
+- "passed": true if ready for review, false if not
+- "reason": concise explanation of the verdict
+- "issues": list of specific problems found (empty if passed)
+- "severity": "info", "warning", "error", or "critical"

@@ -1,0 +1,16 @@
+# Skills Configuration
+# Defines available skills and their activation rules.
+
+skills:
+  sdlc:
+    path: ".opencode/skills/sdlc/SKILL.md"
+    enabled: true
+    description: "SDLC orchestration loop"
+
+  foundry:
+    path: ".agents/skills/foundry/SKILL.md"
+    enabled: false
+    description: "Foundry autonomous SDLC runtime"
+
+auto_activate:
+  - sdlc

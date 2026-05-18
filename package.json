@@ -1,0 +1,34 @@
+{
+  "name": "@hemanthdamineni/foundry",
+  "version": "0.1.0",
+  "description": "Foundry: workspace-aware autonomous SDLC runtime with phase gates, deterministic bootstrap, and validation",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "foundry": "foundry/install/install.js",
+    "foundry-install": "foundry/install/install.js",
+    "foundry-bootstrap": "foundry/install/bootstrap.js",
+    "foundry-doctor": "foundry/install/doctor.js"
+  },
+  "scripts": {
+    "postinstall": "node foundry/install/install.js"
+  },
+  "files": [
+    "foundry/",
+    ".opencode/",
+    "sdlc/",
+    "sdlc-mcp/"
+  ],
+  "keywords": [
+    "opencode",
+    "skill",
+    "sdlc",
+    "engineering",
+    "agent",
+    "lifecycle",
+    "code-review"
+  ],
+  "license": "MIT"
+}

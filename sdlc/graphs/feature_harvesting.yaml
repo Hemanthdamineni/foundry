@@ -1,0 +1,29 @@
+phases:
+  - Chatting
+  - ContextHarvesting
+  - Specs
+  - Planning
+  - Coding
+  - Review
+  - Testing
+  - Done
+
+transitions:
+  - from: Chatting
+    to: ContextHarvesting
+  - from: Chatting
+    to: Done
+  - from: ContextHarvesting
+    to: Specs
+  - from: Specs
+    to: Planning
+  - from: Planning
+    to: Coding
+  - from: Coding
+    to: Review
+  - from: Review
+    to: Coding
+  - from: Review
+    to: Testing
+  - from: Testing
+    to: Done

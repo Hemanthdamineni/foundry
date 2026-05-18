@@ -1,0 +1,16 @@
+Evaluate the Specs phase output before it transitions to Planning.
+
+Check that:
+1. Requirements are clearly stated and actionable
+2. Scope is well-defined with boundaries
+3. Constraints are documented (tech stack, time, resources)
+4. The spec is detailed enough to create a plan
+
+Output:
+{output}
+
+Return a JSON object with:
+- "passed": true if ready for planning, false if not
+- "reason": concise explanation of the verdict
+- "issues": list of specific problems found (empty if passed)
+- "severity": "info", "warning", "error", or "critical"

@@ -1,0 +1,84 @@
+"""Tests for CLI argument parsing and routing."""
+
+from __future__ import annotations
+
+from sdlc_mcp.cli import main as cli_main
+from sdlc_mcp.cli.main import cli
+
+
+def _run_cli(args: list[str]) -> int:
+    """Run CLI and capture exit code instead of letting it call sys.exit()."""
+    try:
+        return cli(args)
+    except SystemExit as e:
+        return e.code if e.code is not None else 0
+
+
+class TestCLIParsing:
+    def test_init_command(self) -> None:
+        assert _run_cli(["init"]) == 0
+
+    def test_init_with_force(self) -> None:
+        assert _run_cli(["init", "--force"]) == 0
+
+    def test_init_with_no_plugins(self) -> None:
+        assert _run_cli(["init", "--no-plugins"]) == 0
+
+    def test_init_with_all_flags(self) -> None:
+        assert _run_cli(["init", "--force", "--no-plugins"]) == 0
+
+    def test_doctor_command(self) -> None:
+        try:
+            result = _run_cli(["doctor"])
+            assert isinstance(result, int)
+        except ModuleNotFoundError:
+            pass  # aiosqlite not available in test env
+
+    def test_models_command(self) -> None:
+        result = _run_cli(["models"])
+        assert isinstance(result, int)
+
+    def test_repair_command(self) -> None:
+        assert _run_cli(["repair"]) == 0
+
+    def test_upgrade_command(self) -> None:
+        assert _run_cli(["upgrade"]) == 0
+
+    def test_no_command_runs_server(self, monkeypatch) -> None:
+        monkeypatch.setattr(cli_main, "run_server", lambda *, workspace=None: 0)
+        assert cli_main.cli([]) == 0
+
+    def test_global_workspace_flag_without_command_runs_server(self, monkeypatch, tmp_path) -> None:
+        captured: dict[str, str | None] = {}
+
+        def fake_run_server(*, workspace: str | None = None) -> int:
+            captured["workspace"] = workspace
+            return 0
+
+        monkeypatch.setattr(cli_main, "run_server", fake_run_server)
+        assert cli_main.cli(["--workspace", str(tmp_path)]) == 0
+        assert captured["workspace"] == str(tmp_path)
+
+    def test_command_workspace_flag_passes_explicit_override(self, monkeypatch, tmp_path) -> None:
+        captured: dict[str, str | None] = {}
+
+        def fake_run_init(
+            *,
+            force: bool = False,
+            no_plugins: bool = False,
+            workspace: str | None = None,
+        ) -> int:
+            captured["workspace"] = workspace
+            captured["force"] = str(force)
+            captured["no_plugins"] = str(no_plugins)
+            return 0
+
+        monkeypatch.setattr(cli_main, "run_init", fake_run_init)
+        assert cli_main.cli(["init", "--workspace", str(tmp_path)]) == 0
+        assert captured["workspace"] == str(tmp_path)
+
+    def test_unknown_command_returns_non_zero(self) -> None:
+        assert _run_cli(["unknown"]) != 0
+
+    def test_help_returns_zero(self) -> None:
+        assert _run_cli(["--help"]) == 0

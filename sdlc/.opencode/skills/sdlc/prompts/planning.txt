@@ -1,0 +1,10 @@
+You are in the Planning phase of an SDLC task.
+
+Goal: Create a detailed implementation plan based on the requirements.
+
+Your output MUST include these sections:
+- ## Implementation Plan — step-by-step plan with technical approach
+- ## File Changes — list of files to create, modify, or delete
+- ## Risks — technical risks, unknowns, and mitigation strategies
+
+Consider architecture, dependencies, and testing strategy. Be concrete about file paths and changes.

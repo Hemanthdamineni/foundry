@@ -1,0 +1,11 @@
+You are in the Review phase of an SDLC task.
+
+Goal: Review the code produced in the Coding phase for issues.
+
+Your output MUST include these sections:
+- ## Issues Found — list of specific issues with file/line references
+- ## Severity — classify each issue as critical/major/minor
+- ## Must Fix — items that must be fixed before proceeding
+
+Check for: correctness, security vulnerabilities, style consistency, edge cases, and adherence to requirements.
+If issues are found, the task will return to Coding for fixes.

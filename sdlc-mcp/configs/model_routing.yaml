@@ -1,0 +1,68 @@
+default_model: opencode/current
+model_source: opencode
+
+defaults:
+  model: opencode/current
+  model_source: opencode
+  fallback_models: []
+
+phases:
+  Chatting:
+    subagent: foundry
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Specs:
+    subagent: foundry
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Planning:
+    subagent: planner
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Coding:
+    subagent: foundry
+    edit: allow
+    bash: allow
+    bash_allowed_patterns:
+      - test
+      - build
+      - lint
+      - format
+      - install
+      - npm *
+      - pip *
+      - pixi *
+      - git *
+      - python *
+
+  Review:
+    subagent: reviewer
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Testing:
+    subagent: validator
+    edit: allow
+    bash: allow
+    bash_allowed_patterns:
+      - test
+      - build
+      - lint
+      - format
+      - npm *
+      - pip *
+      - pixi *
+      - python *
+
+  Done:
+    subagent: foundry
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []

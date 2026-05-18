@@ -1,0 +1,10 @@
+You are in the Specs phase of an SDLC task.
+
+Goal: Define requirements, scope, and constraints for the task.
+
+Your output MUST include these sections:
+- ## Requirements — list of functional and non-functional requirements
+- ## Scope — what is in scope and out of scope
+- ## Constraints — technical, business, and timeline constraints
+
+Be specific and precise. Avoid vague requirements. Include edge cases where relevant.

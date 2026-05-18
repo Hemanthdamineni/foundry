@@ -1,0 +1,16 @@
+Evaluate the Planning phase output before it transitions to Coding.
+
+Check that:
+1. The implementation plan is clear and step-by-step
+2. File changes are explicitly listed (create/modify/delete)
+3. Risks and mitigations are identified
+4. The plan is technically feasible
+
+Output:
+{output}
+
+Return a JSON object with:
+- "passed": true if ready for coding, false if not
+- "reason": concise explanation of the verdict
+- "issues": list of specific problems found (empty if passed)
+- "severity": "info", "warning", "error", or "critical"

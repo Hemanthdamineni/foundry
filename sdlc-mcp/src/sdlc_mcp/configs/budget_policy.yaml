@@ -1,0 +1,7 @@
+feature:
+  max_total_tokens: 100000
+  max_review_cycles: 8
+  max_debate_rounds: 0
+  max_runtime_minutes: 60
+  fallback_depth: 2
+  max_debate_budget_tokens: 0

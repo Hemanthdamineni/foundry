@@ -1,0 +1,39 @@
+feature:
+  max_total_tokens: 100000
+  max_review_cycles: 8
+  max_debate_rounds: 3
+  max_runtime_minutes: 60
+  fallback_depth: 2
+  max_debate_budget_tokens: 15000
+
+bugfix:
+  max_total_tokens: 50000
+  max_review_cycles: 4
+  max_debate_rounds: 0
+  max_runtime_minutes: 30
+  fallback_depth: 2
+  max_debate_budget_tokens: 0
+
+refactor:
+  max_total_tokens: 75000
+  max_review_cycles: 6
+  max_debate_rounds: 2
+  max_runtime_minutes: 45
+  fallback_depth: 2
+  max_debate_budget_tokens: 10000
+
+research:
+  max_total_tokens: 30000
+  max_review_cycles: 2
+  max_debate_rounds: 3
+  max_runtime_minutes: 20
+  fallback_depth: 1
+  max_debate_budget_tokens: 10000
+
+docs:
+  max_total_tokens: 40000
+  max_review_cycles: 3
+  max_debate_rounds: 0
+  max_runtime_minutes: 30
+  fallback_depth: 1
+  max_debate_budget_tokens: 0

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdlc
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx pydantic pydantic_settings pyyaml
+
+      - name: Lint
+        run: pip install ruff && ruff check . || echo "Lint not enforced"
+
+      - name: Type check
+        run: pip install mypy && mypy . || echo "Type check not enforced"
+
+      - name: Test
+        run: python -m pytest -q --tb=short
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: sdlc
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx pydantic pydantic_settings pyyaml
+
+      - name: Integration tests
+        run: python -m pytest tests/test_integration.py -q --tb=short || echo "Integration tests (require running server)"

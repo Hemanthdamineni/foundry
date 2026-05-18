@@ -1,0 +1,39 @@
+{
+  "name": "@hemanthdamineni/foundry",
+  "version": "0.1.0",
+  "description": "Foundry engineering agent for OpenCode: workspace-aware autonomous SDLC runtime with phase gates, deterministic bootstrap, and validation",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "postinstall": "node install/install.js"
+  },
+  "bin": {
+    "foundry": "install/install.js",
+    "foundry-install": "install/install.js",
+    "foundry-bootstrap": "install/bootstrap.js",
+    "foundry-doctor": "install/doctor.js"
+  },
+  "files": [
+    ".opencode/",
+    "agents/",
+    "install/",
+    "prompts/",
+    "sdlc-mcp/",
+    "skills/",
+    "templates/",
+    "package.json",
+    "README.md"
+  ],
+  "keywords": [
+    "opencode",
+    "skill",
+    "sdlc",
+    "engineering",
+    "agent",
+    "lifecycle",
+    "code-review"
+  ],
+  "license": "MIT"
+}

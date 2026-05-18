@@ -1,0 +1,16 @@
+Evaluate the Review phase output before it transitions to Testing.
+
+Check that:
+1. The review confirms the code meets the spec requirements
+2. No critical or high-severity issues remain unresolved
+3. The output is ready for test execution
+4. The review is thorough and not superficial
+
+Output:
+{output}
+
+Return a JSON object with:
+- "passed": true if ready for testing, false if not
+- "reason": concise explanation of the verdict
+- "issues": list of specific problems found (empty if passed)
+- "severity": "info", "warning", "error", or "critical"

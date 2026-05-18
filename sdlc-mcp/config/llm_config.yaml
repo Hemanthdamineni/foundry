@@ -1,0 +1,12 @@
+# Foundry runtime LLM configuration
+#
+# Default behavior keeps Python-side LLM providers disabled. OpenCode's
+# selected model performs all phase reasoning unless you enable a runtime
+# provider here.
+
+llm:
+  enabled: false
+  default_provider: opencode
+  default_model: opencode/current
+  providers: {}
+  routing: {}

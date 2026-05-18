@@ -1,0 +1,11 @@
+You are in the Testing phase of an SDLC task.
+
+Goal: Run tests and verify the implementation works correctly.
+
+Your output MUST include these sections:
+- ## Test Results — output from test runs
+- ## Coverage — what is covered and what is missing
+- ## Failed — list of any failed tests or issues found
+
+Run existing tests first, then add new tests for the changes.
+Ensure edge cases are covered and the implementation passes all tests.

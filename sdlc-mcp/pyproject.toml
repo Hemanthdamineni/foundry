@@ -1,0 +1,215 @@
+[project]
+name = "sdlc-mcp"
+version = "0.1.0"
+description = "Foundry SDLC orchestration runtime for OpenCode"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0",
+    "aiosqlite>=0.20.0",
+    "httpx>=0.27.0",
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+sdlc-mcp = "sdlc_mcp.cli.main:cli"
+
+[project.optional-dependencies]
+test = ["pytest>=8.0.0", "pytest-asyncio>=0.24.0"]
+dev = [
+    "sdlc-mcp[test]",
+    "ruff>=0.9.0",
+    "mypy>=1.15.0",
+    "pre-commit>=4.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sdlc_mcp", "sdlc_mcp.*"]
+
+[tool.setuptools.package-data]
+sdlc_mcp = [
+    "graphs/*.yaml",
+    "configs/*.yaml",
+    "configs/prompts/*.txt",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [
+    ".pixi",
+    ".venv",
+    ".git",
+    ".opencode",
+    "__pycache__",
+    ".ruff_cache",
+    ".mypy_cache",
+    "configs",
+    "data",
+    "graphs",
+    "docs",
+    "agents",
+    "archive",
+    "latest",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D203",
+    "D213",
+    "D406",
+    "D407",
+    "EM101",
+    "EM102",
+    "FIX002",
+    "TD002",
+    "TD003",
+    "ANN101",
+    "ANN102",
+    "ANN401",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",
+    "ANN001",
+    "ANN201",
+    "ANN204",
+    "ANN401",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "PLC0415",
+    "PLR2004",
+    "TC003",
+    "COM812",
+    "E501",
+    "S603",
+    "TRY003",
+    "ARG002",
+    "ANN202",
+    "PTH110",
+    "SLF001",
+]
+"**/__init__.py" = [
+    "D104",
+]
+"__main__.py" = [
+    "D100",
+    "D103",
+]
+"config.py" = [
+    "D101",
+    "D102",
+]
+"models.py" = [
+    "D101",
+]
+"exceptions.py" = [
+    "D107",
+]
+"log.py" = [
+    "D102",
+]
+"cli/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+    "INP001",
+    "TRY003",
+    "T201",
+    "S603",
+]
+"templates/**" = [
+    "D100",
+    "D103",
+]
+"bootstrap/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"engine/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"runtime/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"adapters/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+]
+"validators/**" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D107",
+    "TC001",
+]
+"adapters/tools/graphify.py" = [
+    "ASYNC240",
+]
+"adapters/tools/tree_sitter.py" = [
+    "ASYNC240",
+]
+"engine/dependency_graph.py" = [
+    "ASYNC240",
+]
+"runtime/pipelines/default.py" = [
+    "ASYNC240",
+]
+"adapters/execution/sandbox.py" = [
+    "ASYNC221",
+    "S602",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
+filterwarnings = ["error"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = false
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "conftest"]
+ignore_errors = true

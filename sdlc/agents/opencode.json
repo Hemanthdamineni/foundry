@@ -1,0 +1,157 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcpServers": {
+    "sdlc-orchestrator": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "sdlc"],
+      "env": {
+        "SDLC_DB_PATH": "./data/sdlc.db",
+        "SDLC_CONFIG_DIR": "./configs",
+        "SDLC_LOG_PATH": "./data/logs/sdlc.log",
+        "SDLC_TRACE_DIR": "./data/traces",
+        "SDLC_MAX_ITERATIONS": "8"
+      }
+    }
+  },
+  "instructions": [
+    "AGENTS.md",
+    ".opencode/context/project/style.md",
+    ".opencode/context/project/patterns.md"
+  ],
+  "agent": {
+    "dev-sdlc": {
+      "mode": "primary",
+      "model": "ollama/qwen3:8b",
+      "temperature": 0.25,
+      "prompt": "{file:.opencode/skills/sdlc/SKILL.md}",
+      "permission": {
+        "edit": "ask",
+        "bash": "ask",
+        "task": {
+          "specs": "allow",
+          "plan": "allow",
+          "code": "allow",
+          "review": "allow",
+          "tester": "allow"
+        }
+      }
+    },
+    "specs": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen3:4b",
+      "temperature": 0.3,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/specs.txt}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "read": "allow"
+      }
+    },
+    "plan": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen3:4b",
+      "temperature": 0.4,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/plan.txt}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "read": "allow",
+        "task": {
+          "debate-proposer": "allow",
+          "debate-critic": "allow",
+          "debate-architect": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "code": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen2.5-coder:3b",
+      "temperature": 0.2,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/code.txt}",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "review": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen2.5-coder:7b",
+      "temperature": 0.3,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/review.txt}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "read": "allow",
+        "task": {
+          "debate-proposer": "allow",
+          "debate-critic": "allow",
+          "debate-architect": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "tester": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen3:4b",
+      "temperature": 0.1,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/tester.txt}",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "read": "allow"
+      }
+    },
+    "debate-proposer": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen3:4b",
+      "temperature": 0.6,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/debate-proposer.txt}",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "debate-critic": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/deepseek-r1:1.5b",
+      "temperature": 0.7,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/debate-critic.txt}",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "debate-architect": {
+      "mode": "subagent",
+      "hidden": true,
+      "model": "ollama/qwen3:4b",
+      "temperature": 0.4,
+      "prompt": "{file:.opencode/skills/sdlc/prompts/debate-architect.txt}",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "mcp": "allow"
+      }
+    }
+  }
+}

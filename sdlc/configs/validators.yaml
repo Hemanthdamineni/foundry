@@ -1,0 +1,59 @@
+# Validator Configuration
+# Defines which validators run at each validation tier.
+
+tiers:
+  microtask:
+    # Runs after every micro-task completion
+    - ruff
+    - mypy
+
+  phase:
+    # Runs after each implementation phase
+    - ruff
+    - mypy
+    - pytest
+
+  milestone:
+    # Runs at major milestones (before Done)
+    - ruff
+    - mypy
+    - pytest
+    - coverage
+    - semgrep
+    - bandit
+    - benchmarks
+
+adapters:
+  ruff:
+    enabled: true
+    fix_on_error: true
+    strict: true
+
+  mypy:
+    enabled: true
+    strict: true
+    ignore_missing_imports: true
+
+  pytest:
+    enabled: true
+    args:
+      - "-x"
+      - "-q"
+      - "--tb=short"
+
+  coverage:
+    enabled: false
+    threshold_percent: 80
+    source: "."
+
+  semgrep:
+    enabled: false
+    config: "auto"
+
+  bandit:
+    enabled: false
+    min_severity: "medium"
+
+  benchmarks:
+    enabled: false
+    threshold_ms: 0

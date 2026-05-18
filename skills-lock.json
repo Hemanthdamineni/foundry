@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "foundry": {
+      "source": "Hemanthdamineni/foundry",
+      "sourceType": "github",
+      "skillPath": "skills/foundry/SKILL.md",
+      "computedHash": "853b317b26ffb2267157d30e4604780e2aac51e85498bf362be48bb029864c52"
+    }
+  }
+}

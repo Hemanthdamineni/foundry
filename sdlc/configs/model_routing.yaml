@@ -1,0 +1,80 @@
+default_model: qwen3:8b
+
+defaults:
+  fallback_models:
+    - qwen3:4b
+
+phases:
+  Chatting:
+    subagent: dev-sdlc
+    model: qwen3:8b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  ContextHarvesting:
+    subagent: specs
+    model: qwen3:4b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Specs:
+    subagent: specs
+    model: qwen3:4b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Planning:
+    subagent: plan
+    model: qwen3:4b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Coding:
+    subagent: code
+    model: qwen2.5-coder:3b
+    edit: allow
+    bash: allow
+    bash_allowed_patterns:
+      - test
+      - build
+      - lint
+      - format
+      - install
+      - npm *
+      - pip *
+      - pixi *
+      - git *
+      - python *
+
+  Review:
+    subagent: review
+    model: qwen2.5-coder:7b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []
+
+  Testing:
+    subagent: tester
+    model: qwen3:4b
+    edit: allow
+    bash: allow
+    bash_allowed_patterns:
+      - test
+      - build
+      - lint
+      - format
+      - npm *
+      - pip *
+      - pixi *
+      - python *
+
+  Done:
+    subagent: dev-sdlc
+    model: qwen3:8b
+    edit: deny
+    bash: deny
+    bash_allowed_patterns: []

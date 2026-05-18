@@ -1,0 +1,41 @@
+# SDLC-MCP LLM Provider Configuration
+#
+# Multiple providers can be configured. Each provider is tried in order
+# of definition when a role's primary provider is unavailable.
+#
+# Environment variables override YAML values:
+#   SDLC_LLM__PROVIDERS__OPENAI__API_KEY=sk-...
+#   SDLC_LLM__PROVIDERS__OPENAI__BASE_URL=https://api.openai.com/v1
+
+llm:
+  default_provider: ollama
+  default_model: qwen2.5-coder:7b
+
+  providers:
+    ollama:
+      type: ollama
+      base_url: http://localhost:11434
+      default_model: qwen2.5-coder:7b
+
+    openai:
+      type: openai
+      base_url: https://api.openai.com/v1
+      api_key: ""  # set via env SDLC_LLM__PROVIDERS__OPENAI__API_KEY
+      default_model: gpt-4o
+
+    deepseek:
+      type: openai
+      base_url: https://api.deepseek.com/v1
+      api_key: ""  # set via env SDLC_LLM__PROVIDERS__DEEPSEEK__API_KEY
+      default_model: deepseek-chat
+
+  routing:
+    judge:
+      provider: ollama
+      model: qwen2.5-coder:7b
+    debate_agent:
+      provider: ollama
+      model: qwen2.5-coder:7b
+    debate_consensus:
+      provider: ollama
+      model: qwen2.5-coder:7b

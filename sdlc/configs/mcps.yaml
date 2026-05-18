@@ -1,0 +1,15 @@
+# MCP Server Configuration
+# Defines registered MCP servers and their connection settings.
+
+servers:
+  sdlc-orchestrator:
+    type: stdio
+    command: "python"
+    args: ["-m", "sdlc"]
+    env:
+      SDLC_DB_PATH: "./data/sdlc.db"
+      SDLC_CONFIG_DIR: "./configs"
+    health_check:
+      enabled: true
+      interval_seconds: 60
+      timeout_seconds: 10

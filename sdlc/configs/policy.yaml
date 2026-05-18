@@ -1,0 +1,47 @@
+# SDLC Policy Configuration
+# Controls autonomy levels, retry budgets, strictness, and checkpoint behavior.
+
+autonomy:
+  level: supervised  # Options: supervised, semi-autonomous, full-autonomous
+  require_approval_phases:
+    - Specs
+    - Planning
+  auto_approve_phases:
+    - Coding
+    - Review
+    - Testing
+
+retry:
+  max_local_retries: 3
+  max_replan_attempts: 2
+  backoff_base_seconds: 3
+  backoff_multiplier: 3
+  max_backoff_seconds: 81
+
+strictness:
+  enforce_schema_checks: true
+  enforce_spec_lock: true
+  enforce_coverage_threshold: false
+  coverage_threshold_percent: 80
+  enforce_lint_zero: true
+  enforce_type_check: true
+  enforce_security_scan: false
+
+checkpoint:
+  frequency: per_phase  # Options: per_phase, per_microtask, per_milestone
+  auto_commit: true
+  auto_tag: true
+  max_checkpoints: 100
+
+benchmark:
+  enabled: false
+  regression_threshold_percent: 15
+  track_trends: true
+
+security:
+  scan_enabled: false
+  block_on_critical: true
+  block_on_high: false
+  tools:
+    - semgrep
+    - bandit
