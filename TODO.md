@@ -1,1035 +1,561 @@
-# Final Priority TODOs (Core Architecture)
+# Critical Runtime TODOs
 
-These are the foundational items required before the system can reliably function as a true autonomous engineering system.
-
----
-
-# P0 — Critical / Foundational TODOs
+These are the missing implementation tasks required to make the runtime trustworthy and actually autonomous.
 
 ---
 
-## 1. Pre-Spec Context Harvesting System
-
-### Goal
-
-Make the system ask every important question before spec approval and never require human clarification afterward.
-
-### Must Include
-
-* Requirement interrogation
-* Constraint extraction
-* Environment analysis
-* Deployment assumptions
-* Edge-case questioning
-* Scalability expectations
-* Risk tolerance
-* Architecture preferences
-* Dependency expectations
-* Coding standards detection
-
-### Required Outputs
-
-```text id="7nr14o"
-context_bundle.json
-resolved_requirements.md
-```
-
-### Critical Rule
-
-After:
-
-```text id="j99vfw"
-SPEC_APPROVED = TRUE
-```
-
-Then:
-
-```text id="n8qeh9"
-NO HUMAN QUESTIONS ALLOWED
-```
-
-Only:
-
-* autonomous replanning
-* autonomous compromises
-* autonomous recovery
-
-This directly addresses:
-
-* “Make it ask questions”
-* “Make implementation questions happen before specs”
-
-
+# P0 — Runtime Determinism & Reliability
 
 ---
 
-## 2. Hierarchical Iterative Execution Engine
-
-### Goal
-
-Replace waterfall coding with iterative implementation loops.
-
-### Required Architecture
-
-```text id="m2muvs"
-SPEC
-→ SYSTEM_PHASES
-    → IMPLEMENTATION_PHASES
-        → MICRO_TASKS
-```
-
-### Required Execution Pattern
-
-```text id="18f2v0"
-IMPLEMENT_PHASE
-→ LOCAL_TEST
-→ REVIEW
-→ INTEGRATION_TEST
-→ REGRESSION_TEST
-→ CHECKPOINT
-→ NEXT_PHASE
-```
-
-### Required Properties
-
-* Incremental execution
-* Incremental stabilization
-* Progressive integration
-* Progressive regression protection
-* Localized failures
-* Safe convergence
-
-### This Fixes
-
-* Single-pass execution
-* Giant implementation bursts
-* Late integration failures
-* Context overload
-
-This is the most important architectural upgrade.
-
-
-
----
-
-## 3. Multi-Level Testing Architecture
-
-### Goal
-
-Guarantee stability at every implementation layer.
-
-### Required Test Layers
-
-#### Unit Testing
-
-Component correctness.
-
-#### Integration Testing
-
-Inter-component compatibility.
-
-#### System Testing
-
-Full workflow correctness.
-
-#### Regression Testing
-
-Prevent old feature breakage.
-
-#### Property/Fuzz Testing
-
-Edge-case discovery.
-
-#### Benchmark Testing
-
-Performance stability.
-
-#### Security Testing
-
-Vulnerability prevention.
-
-### Required Trigger Rules
-
-After every implementation phase:
-
-```text id="4n5d95"
-RUN:
-- integration tests
-- regression tests
-- stability checks
-```
-
-### Required Tools
-
-* pytest
-* hypothesis
-* playwright
-* coverage
-* benchmarks
-* fuzzers
-* semgrep
-* bandit
-
-This directly addresses:
-
-* “write test files whenever possible”
-
-
-
----
-
-## 4. Judge & Validation Hierarchy
-
-### Goal
-
-Make approvals trustworthy.
-
-### Required Judge Layers
-
-#### Tool Judges
-
-Objective truth.
-
-#### Semantic Judges
-
-Spec alignment.
-
-#### Architecture Judges
-
-Long-term maintainability.
-
-#### Security Judges
-
-Security correctness.
-
-#### Risk Judges
-
-Operational safety.
-
-#### Integration Judges
-
-Cross-module stability.
-
-### Critical Rule
-
-```text id="wmdg5q"
-NO SINGLE JUDGE MAY APPROVE ALONE
-```
-
-### Required Consensus
-
-```text id="g6xvns"
-TOOLS
-+ REVIEWERS
-+ ARCHITECTURE_JUDGES
-```
-
-### This Fixes
-
-* Weak judge agents
-* Premature approvals
-* Incorrect merges
-
-Directly addresses:
-
-* “Make sure the Judge agents work properly”
-
-
-
----
-
-## 5. Parallel Subagent Coordination System
-
-### Goal
-
-Enable real multi-team execution safely.
-
-### Required Subteams
-
-```text id="43x3zs"
-Planning Team
-Backend Team
-Frontend Team
-Testing Team
-Security Team
-Integration Team
-Documentation Team
-Review Team
-Benchmark Team
-```
+## 1. Deterministic Execution Runtime
+
+### TODOs
+
+* [ ] `runtime/execution_runtime.py`
+* [ ] Deterministic phase transition engine
+* [ ] Deterministic execution ordering
+* [ ] Deterministic task scheduling
+* [ ] Prompt hash locking
+* [ ] Model routing determinism
+* [ ] Replay-safe execution IDs
+* [ ] Stable artifact generation contracts
 
 ### Required Features
 
-* Dependency-aware scheduling
-* Path locking
-* Merge coordination
-* Conflict prediction
-* Parallel implementation
-* Parallel reviews
-* Parallel test generation
+* same inputs → same phase flow
+* deterministic orchestration decisions
+* reproducible retries
+* deterministic recovery paths
 
-### Required Debate Types
+### Why
 
-* Architecture debates
-* Security debates
-* API debates
-* Refactor debates
-* Merge debates
+Without this:
 
-### This Fixes
-
-* Weak parallelism
-* Underutilized subagents
-* Sequential bottlenecks
-
-Directly addresses:
-
-* “properly use subagents for parallel execution and debates”
-
-
+* replay becomes impossible
+* debugging becomes unreliable
+* recovery becomes nondeterministic
 
 ---
 
-## 6. Autonomous Failure Recovery & Replanning Engine
+## 2. Checkpoint & Recovery Infrastructure
 
-### Goal
+### TODOs
 
-Allow unattended recovery from failures.
+* [ ] `runtime/checkpoint_manager.py`
+* [ ] Atomic checkpoint snapshots
+* [ ] Recovery snapshot restoration
+* [ ] Checkpoint validation
+* [ ] Replay-safe snapshots
+* [ ] Incremental state persistence
+* [ ] Rollback-safe recovery points
 
-### Required Recovery Layers
+### Required Features
 
-#### Local Retry
-
-Small implementation fixes.
-
-#### Local Replan
-
-Rebuild current implementation phase.
-
-#### Structural Replan
-
-Rebuild downstream plan.
-
-#### Full Recovery
-
-Rollback + restore.
-
-### Required Rules
-
-```text id="wul62m"
-LOCALIZE FAILURES FIRST
+```text id="06cjlwm"
+CHECKPOINT
+→ VALIDATE
+→ COMMIT
+→ RESTOREABLE
 ```
 
-Avoid:
+### Why
 
-```text id="c9y69l"
-FULL SYSTEM REPLANS
-```
+This is the backbone of:
 
-unless necessary.
-
-### Required Triggers
-
-* repeated failures
-* integration instability
-* architecture conflicts
-* benchmark collapse
-* unresolved review loops
+* autonomous retries
+* rollback
+* crash recovery
+* long-running execution
 
 ---
 
-## 7. Persistent Execution State Machine
+## 3. Persistent State Infrastructure
 
-### Goal
+### TODOs
 
-Enable week-long autonomous execution safely.
+* [ ] `runtime/state_manager.py`
+* [ ] `runtime/memory_store.py`
+* [ ] State versioning
+* [ ] Persistent execution graph
+* [ ] Task lifecycle tracking
+* [ ] Integration state persistence
+* [ ] Retry history persistence
+* [ ] Judge decision persistence
 
-### Must Persist
+### Required State Files
 
-* current phase
-* implementation stage
-* retries
-* validators
-* benchmarks
-* integration state
-* unresolved risks
-* branch state
-* checkpoints
-
-### Required Files
-
-```text id="3hn2h5"
+```text id="qtl8jk"
 state.json
 task_state.json
-phase_state.json
 integration_state.json
+retry_state.json
+judge_state.json
 ```
 
-### Required Recovery Behavior
+### Why
 
-```text id="h3rkpo"
-RESUME EXACTLY
-FROM LAST STABLE CHECKPOINT
-```
+Without explicit persistent state:
+
+* the system is still “chat-based”
+* not runtime-based
 
 ---
 
-## 8. Atomic Git & Checkpoint System
+## 4. Tool Execution Reliability Layer
 
-### Goal
+### TODOs
 
-Make every implementation step recoverable.
+* [ ] `runtime/tool_executor.py`
+* [ ] Tool timeout enforcement
+* [ ] Tool retry wrappers
+* [ ] Tool output normalization
+* [ ] Tool health checks
+* [ ] Tool sandbox execution
+* [ ] Tool failure classification
+* [ ] Deterministic tool adapters
 
-### Required Behavior
+### Required Features
 
-After each stable implementation phase:
-
-```text id="04pnzs"
-COMMIT
-→ TAG
-→ SNAPSHOT
-→ CHECKPOINT
+```text id="m2b9yb"
+RUN TOOL
+→ VALIDATE OUTPUT
+→ NORMALIZE
+→ CLASSIFY FAILURE
+→ RETRY OR ESCALATE
 ```
 
-### Required Commit Rules
+### Why
 
-* atomic commits
-* phase-scoped commits
-* validated commits
-* rollback-safe commits
+Tool reliability is the actual “truth layer” of the system.
 
-### Required Repository Behavior
+---
 
-```text id="a1rn14"
-INITIALIZE_GIT_REPO_ALWAYS
+# P0 — Reviewer Debates & Judge Systems
+
+---
+
+## 5. Reviewer Debate Runtime
+
+### TODOs
+
+* [ ] `engine/reviewer_debate.py`
+* [ ] Structured debate rounds
+* [ ] Independent reviewer analysis
+* [ ] Cross-review critique phase
+* [ ] Debate memory synthesis
+* [ ] Debate convergence detection
+* [ ] Repetition detection
+* [ ] Risk surfacing system
+
+### Required Debate Flow
+
+```text id="jjgz5u"
+INDEPENDENT_REVIEW
+→ CROSS_CRITIQUE
+→ SECRETARY_SUMMARY
+→ CONFIDENCE_EMISSION
+→ ORCHESTRATOR_DECISION
 ```
 
 ### Required Features
 
-* branch-per-task
-* branch-per-phase
-* deterministic rollback
-* replayable history
+* no premature agreement
+* no hidden disagreement
+* explicit unresolved risks
 
-Directly addresses:
+### Why
 
-* “initialize git repo everytime”
-* “make atomic github commits”
+Right now debates exist architecturally but not operationally.
 
 ---
 
-## 9. Incremental Validation Pipeline
+## 6. Confidence Gating Engine
 
-### Goal
+### TODOs
 
-Continuously stabilize the system.
+* [ ] `engine/confidence_gate.py`
+* [ ] Confidence normalization
+* [ ] Confidence threshold enforcement
+* [ ] Low-confidence rejection
+* [ ] Consensus confidence aggregation
+* [ ] Confidence drift detection
+* [ ] Role-based confidence bounds
 
-### Required Validation Levels
+### Required Logic
 
-#### Per Microtask
-
-* syntax
-* lint
-* local tests
-
-#### Per Implementation Phase
-
-* integration
-* security
-* architecture checks
-
-#### Per Milestone
-
-* regression
-* benchmark
-* system tests
-
-### Critical Rule
-
-```text id="e0djx8"
-NO PHASE MAY CONTINUE UNLESS CURRENT STATE IS STABLE
+```text id="7b9jtt"
+IF:
+  unanimous approval
+AND:
+  avg confidence >= threshold
+THEN:
+  approve
+ELSE:
+  continue debate or synthesize
 ```
 
----
+### Why
 
-## 10. Structured Progress Tracking System
+Without runtime confidence enforcement:
 
-### Goal
-
-Measure convergence explicitly.
-
-### Required Metrics
-
-* tests fixed
-* new failures
-* coverage delta
-* retry effectiveness
-* regression count
-* benchmark trends
-* unresolved issues
-* integration stability
-
-### Required Outputs
-
-```json id="c46rwi"
-{
-  "phase_progress": 0.74,
-  "integration_stability": 0.91,
-  "retry_effectiveness": 0.67
-}
-```
-
-This prevents orchestrator guessing.
-
-
+* reviewers become decorative
+* approvals become meaningless
 
 ---
 
-## 11. Repository Understanding & Indexing Phase
+## 7. Judge Hierarchy Runtime
 
-### Goal
+### TODOs
 
-Understand the repository before planning.
-
-### Required Capabilities
-
-* dependency graph extraction
-* architecture discovery
-* API mapping
-* test discovery
-* module ownership
-* hotspot analysis
-* complexity analysis
-
-### Required Outputs
-
-```text id="yp21jp"
-repo_graph.json
-architecture_map.json
-dependency_graph.json
-```
-
-
-
----
-
-## 12. Spec-Locked Autonomous Decision System
-
-### Goal
-
-Prevent silent requirement drift.
+* [ ] `engine/judge_hierarchy.py`
+* [ ] Tool judge integration
+* [ ] Semantic judge layer
+* [ ] Architecture judge layer
+* [ ] Security judge layer
+* [ ] Integration judge layer
+* [ ] Multi-judge consensus aggregation
 
 ### Required Rule
 
-After spec approval:
-
-```text id="cn87bd"
-NO REQUIREMENT CHANGES
+```text id="buh4ef"
+NO SINGLE JUDGE MAY APPROVE ALONE
 ```
 
-Allowed:
+### Why
 
-* implementation adaptation
-* architecture adaptation
-* execution adaptation
+Prevents:
 
-Not allowed:
-
-* hidden feature changes
-* hidden scope expansion
+* false positives
+* shallow reviews
+* tool-only correctness
 
 ---
 
-## 13. Sandbox & Isolation System
+# P0 — Orchestrator Authority & Execution Governance
 
-### Goal
+---
 
-Safely execute autonomous operations.
+## 8. Orchestrator Authority Engine
+
+### TODOs
+
+* [ ] `engine/orchestrator_runtime.py`
+* [ ] Phase transition authority
+* [ ] Debate continuation authority
+* [ ] Retry authority
+* [ ] Replanning authority
+* [ ] Recovery authority
+* [ ] Rollback authority
+* [ ] Budget enforcement authority
+
+### Required Rule
+
+```text id="84x5h5"
+NO COMPONENT MAY ADVANCE PHASES
+WITHOUT ORCHESTRATOR APPROVAL
+```
 
 ### Required Features
 
-* Docker isolation
-* resource quotas
-* process isolation
-* network policy control
-* ephemeral workspaces
-* execution sandboxes
+* explicit authority boundaries
+* deterministic governance
+* centralized execution control
 
-### Required Policies
+### Why
 
-* CPU limits
-* memory limits
-* filesystem isolation
-* timeout enforcement
+This prevents:
 
-
+* rogue agents
+* uncontrolled loops
+* hidden phase transitions
 
 ---
 
-## 14. Runtime Observability & Dashboard System
+## 9. Structured Phase Contract System
 
-### Goal
+### TODOs
 
-Monitor long autonomous runs.
+* [ ] `runtime/phase_contracts.py`
+* [ ] Input contract validation
+* [ ] Output contract validation
+* [ ] Phase invariant enforcement
+* [ ] Transition guard validation
+* [ ] Failure contract enforcement
 
-### Must Track
+### Required Phase Schema
 
-* current phase
-* retries
-* integration stability
-* validator health
-* benchmark trends
-* queue state
-* model utilization
-* confidence trends
-
-### Required Outputs
-
-```text id="o8i7m6"
-live_dashboard.json
-execution_timeline.json
+```json id="hnm0yq"
+{
+  "phase": "IMPLEMENTATION",
+  "required_inputs": [],
+  "required_outputs": [],
+  "validators": [],
+  "failure_paths": []
+}
 ```
 
+### Why
 
+Without explicit contracts:
+
+* phases become fuzzy
+* deterministic execution collapses
 
 ---
 
-## 15. Policy & Config Framework
+# P0 — Retry, Recovery & Replanning
 
-### Goal
+---
 
-Allow user customization safely.
+## 10. Retry Policy Engine
 
-### Required Config Files
+### TODOs
 
-```text id="y9e4p7"
-policy.yaml
-runtime_config.yaml
-models.yaml
-validators.yaml
-skills.yaml
-mcps.yaml
+* [ ] `engine/retry_policy.py`
+* [ ] Retry classification
+* [ ] Failure-type routing
+* [ ] Adaptive retry budgets
+* [ ] Retry escalation rules
+* [ ] No-progress detection
+* [ ] Retry effectiveness scoring
+
+### Required Retry Types
+
+```text id="6x4c8p"
+LOCAL_RETRY
+LOCAL_REPLAN
+PHASE_RETRY
+STRUCTURAL_REPLAN
+FULL_RECOVERY
 ```
 
-### Required Config Areas
+### Why
 
-* autonomy level
-* retry budgets
-* strictness levels
-* model routing
-* checkpoint frequency
-* benchmark thresholds
-* security thresholds
+Without structured retries:
 
-Directly addresses:
-
-* “Think of a way for users to change the config”
+* infinite loops appear
+* retries become random
 
 ---
 
-# P1 — High Priority TODOs
+## 11. Dynamic Replanning Runtime
 
----
+### TODOs
 
-## 16. Dynamic Replanning Engine
+* [ ] `engine/replanner.py`
+* [ ] Downstream task invalidation
+* [ ] Dependency-aware replanning
+* [ ] Stable-work preservation
+* [ ] Integration-aware replanning
+* [ ] Architecture conflict resolution
 
-### Required Features
+### Required Rule
 
-* downstream replanning
-* preserved stable work
-* selective rollback
-* dependency-aware replanning
-
----
-
-## 17. Continuous Regression Prevention
-
-### Required Features
-
-* rolling regression suite
-* API contract verification
-* benchmark regression detection
-* compatibility checks
-
----
-
-## 18. Cross-Phase Memory Compression
-
-### Required Outputs
-
-```text id="ydw0vg"
-phase_summary.md
-decision_summary.md
-integration_summary.md
+```text id="0pjx7l"
+PRESERVE COMPLETED STABLE WORK
 ```
 
-### Goal
+### Why
 
-Prevent context explosion.
+Without replanning:
 
----
-
-## 19. Prompt Registry & Versioning System
-
-### Required Features
-
-* prompt hashing
-* prompt rollback
-* versioned prompts
-* compatibility tracking
-
-
+* failures cascade globally
 
 ---
 
-## 20. Deterministic Replay System
+## 12. Deterministic Recovery Engine
 
-### Required Features
+### TODOs
 
-* phase replay
-* execution replay
-* debate replay
-* checkpoint replay
+* [ ] `engine/recovery_engine.py`
+* [ ] Recovery classification
+* [ ] Recovery replay validation
+* [ ] Crash-safe restoration
+* [ ] Phase-safe restoration
+* [ ] Integration-safe restoration
 
+### Required Recovery Flow
 
-
----
-
-## 21. Autonomous Test Generation Pipeline
-
-### Required Features
-
-* unit test synthesis
-* property-based testing
-* mutation testing
-* fuzzing
-* snapshot tests
-
-
-
----
-
-## 22. Architecture Drift Detection
-
-### Required Features
-
-* planned vs actual comparison
-* layer violation detection
-* circular dependency detection
-* architectural consistency scoring
-
-
-
----
-
-## 23. Environment Reproducibility System
-
-### Required Features
-
-* deterministic environments
-* dependency locking
-* runtime fingerprinting
-* reproducible builds
-
-
-
----
-
-## 24. Long-Run Autonomous Controller
-
-### Required Features
-
-* pause/resume
-* overnight mode
-* stagnation detection
-* watchdog timers
-* thermal/resource awareness
-
----
-
-# P2 — Medium / Non-Priority TODOs
-
----
-
-## 25. Benchmark Trend Intelligence
-
-Historical performance analysis.
-
----
-
-## 26. Semantic Code Ownership
-
-Symbol-level ownership tracking.
-
----
-
-## 27. Artifact Provenance Tracking
-
-Track:
-
-* generating agent
-* approving debate
-* prompt version
-* validator source
-
-
-
----
-
-## 28. Capability Negotiation System
-
-Dynamic MCP/tool compatibility management.
-
----
-
-## 29. Cost & Resource Governor
-
-Adaptive routing and token/resource budgeting.
-
----
-
-## 30. Configurable Autonomy Modes
-
-### Required Modes
-
-```text id="o6b0e3"
-FULL_AUTONOMY
-REVIEW_BEFORE_MERGE
-HUMAN_ON_RISK
-DEBUG_MODE
-EDUCATIONAL_MODE
+```text id="e63ib6"
+FAILURE
+→ RESTORE CHECKPOINT
+→ VALIDATE STATE
+→ RESUME DETERMINISTICALLY
 ```
 
+### Why
 
+This is the core of:
+
+* unattended execution
+* overnight operation
+* crash resilience
 
 ---
 
-# Comprehensive Autonomous Phase Graph
+## 13. Rollback Handling System
 
-```text id="h3ffwa"
-PHASE_0_CONTEXT_HARVESTING
-    → ask questions
-    → gather constraints
-    → environment analysis
-    → ambiguity resolution
+### TODOs
 
-PHASE_1_SPEC_GENERATION
-    → SPEC.json
-    → acceptance tests
-    → constraints
-    → risk boundaries
+* [ ] `runtime/rollback_manager.py`
+* [ ] Git rollback coordination
+* [ ] Phase rollback
+* [ ] Selective rollback
+* [ ] Rollback validation
+* [ ] Integration-safe rollback
+* [ ] Rollback replay logging
 
-PHASE_2_REPOSITORY_INDEXING
-    → dependency graph
-    → architecture graph
-    → API discovery
+### Required Rollback Rule
 
-PHASE_3_MACRO_PLANNING
-    → system phases
-    → implementation roadmap
-    → integration roadmap
-
-PHASE_4_IMPLEMENTATION_PHASE_PLANNING
-    → microtasks
-    → local test plans
-    → rollback plans
-
-PHASE_5_IMPLEMENTATION_LOOP
-    IMPLEMENT_MICROTASK
-        → local lint
-        → local unit tests
-        → local review
-        → checkpoint
-
-PHASE_6_PHASE_INTEGRATION
-    → merge
-    → integration tests
-    → regression tests
-    → benchmark checks
-
-PHASE_7_PHASE_REVIEW
-    → semantic judges
-    → architecture judges
-    → security judges
-    → risk judges
-
-PHASE_8_PHASE_STABILIZATION
-    → bug fixing
-    → refactoring
-    → optimization
-    → regression validation
-
-PHASE_9_SYSTEM_INTEGRATION
-    → global integration
-    → full regression
-    → benchmark validation
-
-PHASE_10_SYSTEM_VALIDATION
-    → final judges
-    → spec validation
-    → architecture validation
-
-PHASE_11_DOCUMENTATION
-    → docs
-    → READMEs
-    → architecture updates
-
-PHASE_12_FINALIZATION
-    → final reports
-    → completion_report.json
-    → tagged release
+```text id="up7hkk"
+ROLLBACK MUST NEVER CORRUPT
+STABLE COMPLETED PHASES
 ```
 
----
+### Why
 
-# Required MCPs
-
----
-
-## Core MCPs
-
-### Git MCP
-
-* repo management
-* commits
-* branching
-* tagging
-* rollback
-
-### Filesystem MCP
-
-* safe file operations
-* snapshots
-* indexing
-
-### Terminal MCP
-
-* tool execution
-* benchmarking
-* testing
-
-### Docker MCP
-
-* sandboxing
-* isolation
-* reproducibility
-
-### Memory MCP
-
-* long-term memory
-* retrieval
-* compression
-
-### Planning MCP
-
-* task decomposition
-* dependency graphs
-* execution graphs
-
-### Observability MCP
-
-* dashboards
-* metrics
-* telemetry
-
-### Replay MCP
-
-* deterministic replay
-* checkpoint recovery
+Rollback is currently conceptual, not operational.
 
 ---
 
-# Required Skills
+# P0 — Tool Gate Enforcement
 
 ---
 
-## Planning Skills
+## 14. Tool Gate Runtime
 
-* spec generation
-* ambiguity detection
-* architecture planning
-* dependency planning
+### TODOs
 
----
+* [ ] `runtime/tool_gate.py`
+* [ ] Gate sequencing
+* [ ] Binary gate enforcement
+* [ ] Tool failure escalation
+* [ ] Spec-aware tool exceptions
+* [ ] Gate dependency ordering
+* [ ] Gate replay logging
 
-## Coding Skills
+### Required Gate Order
 
-* backend generation
-* frontend generation
-* refactoring
-* optimization
-
----
-
-## Testing Skills
-
-* unit test generation
-* integration test generation
-* regression testing
-* fuzz testing
-* mutation testing
-
----
-
-## Review Skills
-
-* semantic review
-* architecture review
-* security review
-* performance review
-
----
-
-## Operational Skills
-
-* git management
-* rollback management
-* benchmarking
-* profiling
-* deployment validation
-
----
-
-# Final Core Architectural Shift
-
-Old Model:
-
-```text id="v09h4e"
-PLAN
-→ CODE EVERYTHING
-→ TEST EVERYTHING
-→ REVIEW EVERYTHING
+```text id="yrxjsk"
+LINT
+→ TYPES
+→ TESTS
+→ COVERAGE
+→ SECURITY
+→ BENCHMARKS
 ```
 
-Final Autonomous Model:
+### Required Rule
 
-```text id="b2n22u"
-PLAN ONCE
-
-FOR EACH IMPLEMENTATION_PHASE:
-    → implement
-    → unit test
-    → review
-    → integrate
-    → regression test
-    → stabilize
-    → checkpoint
-    → continue
-
-THEN:
-    → global integration
-    → system validation
-    → release
+```text id="2r2xvk"
+TOOLS ARE AUTHORITATIVE
 ```
 
-That is the transition from:
+### Why
 
-```text id="p5j4vg"
-multi-agent coding assistant
+Without enforced tool gates:
+
+* “looks correct” becomes acceptable again
+
+---
+
+# P1 — Important Runtime Systems
+
+---
+
+## 15. Integration Coordination Runtime
+
+### TODOs
+
+* [ ] `engine/integration_manager.py`
+* [ ] Cross-phase integration
+* [ ] Merge stabilization
+* [ ] Integration validation
+* [ ] Dependency synchronization
+
+---
+
+## 16. Regression Management Runtime
+
+### TODOs
+
+* [ ] `engine/regression_manager.py`
+* [ ] Rolling regression suite
+* [ ] Benchmark regression detection
+* [ ] Historical regression tracking
+* [ ] Compatibility verification
+
+---
+
+## 17. Execution Budget Controller
+
+### TODOs
+
+* [ ] `runtime/budget_controller.py`
+* [ ] Token budgets
+* [ ] Runtime budgets
+* [ ] Retry budgets
+* [ ] Resource limits
+* [ ] Thermal throttling awareness
+
+---
+
+## 18. Prompt Registry & Versioning
+
+### TODOs
+
+* [ ] `prompts/registry.py`
+* [ ] Prompt hashing
+* [ ] Prompt versioning
+* [ ] Compatibility tracking
+* [ ] Replay-safe prompts
+
+---
+
+## 19. Deterministic Replay Runtime
+
+### TODOs
+
+* [ ] `runtime/replay_engine.py`
+* [ ] Debate replay
+* [ ] Phase replay
+* [ ] Tool replay
+* [ ] Checkpoint replay
+
+---
+
+## 20. Runtime Observability Layer
+
+### TODOs
+
+* [ ] `runtime/dashboard.py`
+* [ ] Runtime telemetry
+* [ ] Failure heatmaps
+* [ ] Phase timelines
+* [ ] Retry analytics
+* [ ] Confidence analytics
+
+---
+
+# Evaluation of Your Mentioned Areas
+
+| Area                   | Status                                             |
+| ---------------------- | -------------------------------------------------- |
+| reviewer debates       | Architecturally strong, runtime missing            |
+| orchestrator authority | Defined conceptually, not enforced operationally   |
+| confidence gating      | Specified, not implemented                         |
+| replanning loops       | Conceptual only                                    |
+| retry policies         | Incomplete                                         |
+| deterministic recovery | Missing runtime implementation                     |
+| rollback handling      | Conceptual only                                    |
+| tool-gate enforcement  | Partially designed, runtime enforcement incomplete |
+
+So yes:
+
+```text id="20r4bp"
+ALL OF THEM SHOULD BE ADDED
+TO P0 TODOS
 ```
 
-to:
-
-```text id="7wl2s0"
-fully autonomous engineering execution system
-```
+because they are foundational runtime reliability systems, not optional enhancements.
