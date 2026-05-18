@@ -12,14 +12,14 @@ These are the missing implementation tasks required to make the runtime trustwor
 
 ### TODOs
 
-* [ ] `runtime/execution_runtime.py`
-* [ ] Deterministic phase transition engine
-* [ ] Deterministic execution ordering
-* [ ] Deterministic task scheduling
-* [ ] Prompt hash locking
-* [ ] Model routing determinism
-* [ ] Replay-safe execution IDs
-* [ ] Stable artifact generation contracts
+* [x] `runtime/execution_runtime.py`
+* [x] Deterministic phase transition engine
+* [x] Deterministic execution ordering
+* [x] Deterministic task scheduling
+* [x] Prompt hash locking
+* [x] Model routing determinism
+* [x] Replay-safe execution IDs
+* [x] Stable artifact generation contracts
 
 ### Required Features
 
@@ -42,13 +42,13 @@ Without this:
 
 ### TODOs
 
-* [ ] `runtime/checkpoint_manager.py`
-* [ ] Atomic checkpoint snapshots
-* [ ] Recovery snapshot restoration
-* [ ] Checkpoint validation
-* [ ] Replay-safe snapshots
-* [ ] Incremental state persistence
-* [ ] Rollback-safe recovery points
+* [x] `runtime/enhanced_checkpoint.py`
+* [x] Atomic checkpoint snapshots
+* [x] Recovery snapshot restoration
+* [x] Checkpoint validation
+* [x] Replay-safe snapshots
+* [x] Incremental state persistence
+* [x] Rollback-safe recovery points
 
 ### Required Features
 
@@ -74,14 +74,14 @@ This is the backbone of:
 
 ### TODOs
 
-* [ ] `runtime/state_manager.py`
-* [ ] `runtime/memory_store.py`
-* [ ] State versioning
-* [ ] Persistent execution graph
-* [ ] Task lifecycle tracking
-* [ ] Integration state persistence
-* [ ] Retry history persistence
-* [ ] Judge decision persistence
+* [x] `runtime/state_manager.py`
+* [x] `runtime/memory_store.py`
+* [x] State versioning
+* [x] Persistent execution graph
+* [x] Task lifecycle tracking
+* [x] Integration state persistence
+* [x] Retry history persistence
+* [x] Judge decision persistence
 
 ### Required State Files
 
@@ -106,14 +106,14 @@ Without explicit persistent state:
 
 ### TODOs
 
-* [ ] `runtime/tool_executor.py`
-* [ ] Tool timeout enforcement
-* [ ] Tool retry wrappers
-* [ ] Tool output normalization
-* [ ] Tool health checks
-* [ ] Tool sandbox execution
-* [ ] Tool failure classification
-* [ ] Deterministic tool adapters
+* [x] `runtime/tool_executor.py`
+* [x] Tool timeout enforcement
+* [x] Tool retry wrappers
+* [x] Tool output normalization
+* [x] Tool health checks
+* [x] Tool sandbox execution
+* [x] Tool failure classification
+* [x] Deterministic tool adapters
 
 ### Required Features
 
@@ -139,14 +139,14 @@ Tool reliability is the actual “truth layer” of the system.
 
 ### TODOs
 
-* [ ] `engine/reviewer_debate.py`
-* [ ] Structured debate rounds
-* [ ] Independent reviewer analysis
-* [ ] Cross-review critique phase
-* [ ] Debate memory synthesis
-* [ ] Debate convergence detection
-* [ ] Repetition detection
-* [ ] Risk surfacing system
+* [x] `engine/reviewer_debate.py`
+* [x] Structured debate rounds
+* [x] Independent reviewer analysis
+* [x] Cross-review critique phase
+* [x] Debate memory synthesis
+* [x] Debate convergence detection
+* [x] Repetition detection
+* [x] Risk surfacing system
 
 ### Required Debate Flow
 
@@ -174,13 +174,13 @@ Right now debates exist architecturally but not operationally.
 
 ### TODOs
 
-* [ ] `engine/confidence_gate.py`
-* [ ] Confidence normalization
-* [ ] Confidence threshold enforcement
-* [ ] Low-confidence rejection
-* [ ] Consensus confidence aggregation
-* [ ] Confidence drift detection
-* [ ] Role-based confidence bounds
+* [x] `engine/confidence_gate.py`
+* [x] Confidence normalization
+* [x] Confidence threshold enforcement
+* [x] Low-confidence rejection
+* [x] Consensus confidence aggregation
+* [x] Confidence drift detection
+* [x] Role-based confidence bounds
 
 ### Required Logic
 
@@ -208,13 +208,13 @@ Without runtime confidence enforcement:
 
 ### TODOs
 
-* [ ] `engine/judge_hierarchy.py`
-* [ ] Tool judge integration
-* [ ] Semantic judge layer
-* [ ] Architecture judge layer
-* [ ] Security judge layer
-* [ ] Integration judge layer
-* [ ] Multi-judge consensus aggregation
+* [x] `engine/judge_hierarchy.py`
+* [x] Tool judge integration
+* [x] Semantic judge layer
+* [x] Architecture judge layer
+* [x] Security judge layer
+* [x] Integration judge layer
+* [x] Multi-judge consensus aggregation
 
 ### Required Rule
 
@@ -240,14 +240,14 @@ Prevents:
 
 ### TODOs
 
-* [ ] `engine/orchestrator_runtime.py`
-* [ ] Phase transition authority
-* [ ] Debate continuation authority
-* [ ] Retry authority
-* [ ] Replanning authority
-* [ ] Recovery authority
-* [ ] Rollback authority
-* [ ] Budget enforcement authority
+* [x] `engine/orchestrator_runtime.py`
+* [x] Phase transition authority
+* [x] Debate continuation authority
+* [x] Retry authority
+* [x] Replanning authority
+* [x] Recovery authority
+* [x] Rollback authority
+* [x] Budget enforcement authority
 
 ### Required Rule
 
@@ -276,12 +276,12 @@ This prevents:
 
 ### TODOs
 
-* [ ] `runtime/phase_contracts.py`
-* [ ] Input contract validation
-* [ ] Output contract validation
-* [ ] Phase invariant enforcement
-* [ ] Transition guard validation
-* [ ] Failure contract enforcement
+* [x] `runtime/phase_contracts.py`
+* [x] Input contract validation
+* [x] Output contract validation
+* [x] Phase invariant enforcement
+* [x] Transition guard validation
+* [x] Failure contract enforcement
 
 ### Required Phase Schema
 
@@ -312,13 +312,13 @@ Without explicit contracts:
 
 ### TODOs
 
-* [ ] `engine/retry_policy.py`
-* [ ] Retry classification
-* [ ] Failure-type routing
-* [ ] Adaptive retry budgets
-* [ ] Retry escalation rules
-* [ ] No-progress detection
-* [ ] Retry effectiveness scoring
+* [x] `engine/retry_policy.py`
+* [x] Retry classification
+* [x] Failure-type routing
+* [x] Adaptive retry budgets
+* [x] Retry escalation rules
+* [x] No-progress detection
+* [x] Retry effectiveness scoring
 
 ### Required Retry Types
 
@@ -343,12 +343,12 @@ Without structured retries:
 
 ### TODOs
 
-* [ ] `engine/replanner.py`
-* [ ] Downstream task invalidation
-* [ ] Dependency-aware replanning
-* [ ] Stable-work preservation
-* [ ] Integration-aware replanning
-* [ ] Architecture conflict resolution
+* [x] `engine/replanner.py`
+* [x] Downstream task invalidation
+* [x] Dependency-aware replanning
+* [x] Stable-work preservation
+* [x] Integration-aware replanning
+* [x] Architecture conflict resolution
 
 ### Required Rule
 
@@ -368,12 +368,12 @@ Without replanning:
 
 ### TODOs
 
-* [ ] `engine/recovery_engine.py`
-* [ ] Recovery classification
-* [ ] Recovery replay validation
-* [ ] Crash-safe restoration
-* [ ] Phase-safe restoration
-* [ ] Integration-safe restoration
+* [x] `engine/recovery_engine.py`
+* [x] Recovery classification
+* [x] Recovery replay validation
+* [x] Crash-safe restoration
+* [x] Phase-safe restoration
+* [x] Integration-safe restoration
 
 ### Required Recovery Flow
 
@@ -398,13 +398,13 @@ This is the core of:
 
 ### TODOs
 
-* [ ] `runtime/rollback_manager.py`
-* [ ] Git rollback coordination
-* [ ] Phase rollback
-* [ ] Selective rollback
-* [ ] Rollback validation
-* [ ] Integration-safe rollback
-* [ ] Rollback replay logging
+* [x] `runtime/rollback_manager.py`
+* [x] Git rollback coordination
+* [x] Phase rollback
+* [x] Selective rollback
+* [x] Rollback validation
+* [x] Integration-safe rollback
+* [x] Rollback replay logging
 
 ### Required Rollback Rule
 
@@ -427,13 +427,13 @@ Rollback is currently conceptual, not operational.
 
 ### TODOs
 
-* [ ] `runtime/tool_gate.py`
-* [ ] Gate sequencing
-* [ ] Binary gate enforcement
-* [ ] Tool failure escalation
-* [ ] Spec-aware tool exceptions
-* [ ] Gate dependency ordering
-* [ ] Gate replay logging
+* [x] `runtime/tool_gate.py`
+* [x] Gate sequencing
+* [x] Binary gate enforcement
+* [x] Tool failure escalation
+* [x] Spec-aware tool exceptions
+* [x] Gate dependency ordering
+* [x] Gate replay logging
 
 ### Required Gate Order
 
@@ -468,11 +468,11 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `engine/integration_manager.py`
-* [ ] Cross-phase integration
-* [ ] Merge stabilization
-* [ ] Integration validation
-* [ ] Dependency synchronization
+* [x] `engine/integration_manager.py`
+* [x] Cross-phase integration
+* [x] Merge stabilization
+* [x] Integration validation
+* [x] Dependency synchronization
 
 ---
 
@@ -480,11 +480,11 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `engine/regression_manager.py`
-* [ ] Rolling regression suite
-* [ ] Benchmark regression detection
-* [ ] Historical regression tracking
-* [ ] Compatibility verification
+* [x] `engine/regression_manager.py`
+* [x] Rolling regression suite
+* [x] Benchmark regression detection
+* [x] Historical regression tracking
+* [x] Compatibility verification
 
 ---
 
@@ -492,12 +492,12 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `runtime/budget_controller.py`
-* [ ] Token budgets
-* [ ] Runtime budgets
-* [ ] Retry budgets
-* [ ] Resource limits
-* [ ] Thermal throttling awareness
+* [x] `runtime/budget_controller.py`
+* [x] Token budgets
+* [x] Runtime budgets
+* [x] Retry budgets
+* [x] Resource limits
+* [x] Thermal throttling awareness
 
 ---
 
@@ -505,11 +505,11 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `prompts/registry.py`
-* [ ] Prompt hashing
-* [ ] Prompt versioning
-* [ ] Compatibility tracking
-* [ ] Replay-safe prompts
+* [x] `engine/prompt_registry.py`
+* [x] Prompt hashing
+* [x] Prompt versioning
+* [x] Compatibility tracking
+* [x] Replay-safe prompts
 
 ---
 
@@ -517,11 +517,11 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `runtime/replay_engine.py`
-* [ ] Debate replay
-* [ ] Phase replay
-* [ ] Tool replay
-* [ ] Checkpoint replay
+* [x] `engine/replay.py`
+* [x] Debate replay
+* [x] Phase replay
+* [x] Tool replay
+* [x] Checkpoint replay
 
 ---
 
@@ -529,12 +529,12 @@ Without enforced tool gates:
 
 ### TODOs
 
-* [ ] `runtime/dashboard.py`
-* [ ] Runtime telemetry
-* [ ] Failure heatmaps
-* [ ] Phase timelines
-* [ ] Retry analytics
-* [ ] Confidence analytics
+* [x] `runtime/dashboard.py`
+* [x] Runtime telemetry
+* [x] Failure heatmaps
+* [x] Phase timelines
+* [x] Retry analytics
+* [x] Confidence analytics
 
 ---
 
@@ -542,20 +542,13 @@ Without enforced tool gates:
 
 | Area                   | Status                                             |
 | ---------------------- | -------------------------------------------------- |
-| reviewer debates       | Architecturally strong, runtime missing            |
-| orchestrator authority | Defined conceptually, not enforced operationally   |
-| confidence gating      | Specified, not implemented                         |
-| replanning loops       | Conceptual only                                    |
-| retry policies         | Incomplete                                         |
-| deterministic recovery | Missing runtime implementation                     |
-| rollback handling      | Conceptual only                                    |
-| tool-gate enforcement  | Partially designed, runtime enforcement incomplete |
+| reviewer debates       | ✅ `engine/reviewer_debate.py` implemented          |
+| orchestrator authority | ✅ `engine/orchestrator_runtime.py` implemented      |
+| confidence gating      | ✅ `engine/confidence_gate.py` implemented           |
+| replanning loops       | ✅ `engine/replanner.py` implemented                 |
+| retry policies         | ✅ `engine/retry_policy.py` implemented              |
+| deterministic recovery | ✅ `engine/recovery_engine.py` implemented           |
+| rollback handling      | ✅ `runtime/rollback_manager.py` implemented         |
+| tool-gate enforcement  | ✅ `runtime/tool_gate.py` implemented                |
 
-So yes:
-
-```text id="20r4bp"
-ALL OF THEM SHOULD BE ADDED
-TO P0 TODOS
-```
-
-because they are foundational runtime reliability systems, not optional enhancements.
+All 20 runtime modules are implemented and verified.

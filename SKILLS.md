@@ -695,3 +695,214 @@ These govern human-in-the-loop workflows, approvals, collaboration, and transpar
 | `guidance-engine`          | Provide workflow guidance             | runtime state           | actionable guidance          | explanation-engine       | guidance must be evidence-based         |
 | `session-facilitator`      | Coordinate collaborative sessions     | collaborative workflows | facilitated sessions         | interaction-orchestrator | collaboration consistency required      |
 | `human-safety-guard`       | Protect against unsafe human actions  | override requests       | safety verdicts              | safety-controller        | unsafe overrides blocked                |
+# Simulation & Testing Environment Skills
+
+These manage simulation environments, synthetic testing, dry-run execution, sandbox experimentation, and scenario validation.
+
+| Skill                      | Responsibility                       | Inputs                 | Outputs                       | Invokes                   | Critical Rules                      |
+| -------------------------- | ------------------------------------ | ---------------------- | ----------------------------- | ------------------------- | ----------------------------------- |
+| `simulation-engine`        | Dry-run/simulation execution         | plans/tasks            | simulated outcomes            | planner                   | no real mutations                   |
+| `scenario-generator`       | Synthetic-scenario generation        | specs/risk models      | test scenarios                | test-design               | realistic edge cases required       |
+| `sandbox-runtime`          | Isolated testing runtime             | execution requests     | isolated execution            | sandbox-enforcer          | strict isolation mandatory          |
+| `load-simulator`           | High-load/runtime simulation         | workload models        | load-test results             | throughput-manager        | reproducible simulations            |
+| `chaos-engine`             | Failure/chaos testing                | runtime systems        | resilience reports            | diagnostics               | production safeguards required      |
+| `fault-injector`           | Controlled failure injection         | runtimes/services      | injected faults               | chaos-engine              | bounded failure scope               |
+| `traffic-simulator`        | Synthetic traffic generation         | traffic models         | traffic streams               | load-balancer             | deterministic replay supported      |
+| `integration-simulator`    | Cross-system integration simulation  | integrations/APIs      | simulated integrations        | integration-validator     | external side effects blocked       |
+| `deployment-simulator`     | Deployment dry-run testing           | deployment plans       | simulated deployments         | deployment-validator      | destructive actions prohibited      |
+| `runtime-emulator`         | Runtime-environment emulation        | runtime configs        | emulated runtime              | environment-manager       | environment parity required         |
+| `state-simulator`          | Runtime-state evolution simulation   | state transitions      | simulated states              | state-manager             | state consistency enforced          |
+| `adversarial-simulator`    | Adversarial behavior simulation      | attack/risk models     | adversarial reports           | security-review           | adversarial coverage mandatory      |
+| `recovery-simulator`       | Disaster/failure recovery simulation | recovery plans         | recovery outcomes             | disaster-recovery-manager | rollback validation required        |
+| `benchmark-simulator`      | Performance benchmark simulation     | workload patterns      | benchmark projections         | benchmark-gate            | calibrated simulations only         |
+| `user-behavior-simulator`  | Synthetic-user interaction modeling  | usage models           | simulated interactions        | interaction-orchestrator  | realistic behavior constraints      |
+| `policy-simulator`         | Governance/policy simulation         | runtime policies       | simulated governance outcomes | policy-engine             | unsafe policies flagged             |
+| `parallelism-simulator`    | Concurrent-execution simulation      | task graphs            | concurrency reports           | parallelism-validator     | race-condition detection mandatory  |
+| `network-simulator`        | Distributed-network simulation       | network models         | network-behavior reports      | distributed-scheduler     | partition/failure modeling required |
+| `latency-simulator`        | Runtime-latency simulation           | execution traces       | latency projections           | latency-monitor           | worst-case analysis mandatory       |
+| `capacity-simulator`       | Capacity/scaling simulation          | workload forecasts     | capacity projections          | capacity-planner          | infrastructure ceilings enforced    |
+| `simulation-validator`     | Simulation-result validation         | simulation outputs     | validation reports            | validator                 | unrealistic simulations rejected    |
+| `synthetic-data-generator` | Generate synthetic datasets          | schemas/models         | synthetic data                | data-validator            | no sensitive-data leakage           |
+| `experiment-orchestrator`  | Coordinate controlled experiments    | experiments/configs    | experiment results            | simulation-engine         | reproducibility required            |
+| `what-if-analyzer`         | Hypothetical-outcome analysis        | alternative strategies | projected outcomes            | reasoning-controller      | uncertainty explicitly modeled      |
+| `staging-manager`          | Staging-environment coordination     | deployments/builds     | staged systems                | deployment-orchestrator   | production isolation mandatory      |
+| `test-environment-manager` | Testing-environment lifecycle        | test configs           | managed test environments     | sandbox-runtime           | reproducible environments required  |
+| `simulation-telemetry`     | Simulation telemetry collection      | simulation metrics     | simulation analytics          | telemetry-manager         | telemetry consistency required      |
+| `rollback-simulator`       | Rollback-safety simulation           | rollback plans         | rollback forecasts            | rollback-manager          | irreversible rollback rejected      |
+| `stress-tester`            | Extreme-condition testing            | stress models          | stress-test reports           | chaos-engine              | resource protection mandatory       |
+| `resilience-evaluator`     | Runtime-resilience analysis          | simulation outcomes    | resilience scores             | reliability-engine        | catastrophic weaknesses escalated   |
+
+---
+
+# Economic & Resource Governance Skills
+
+These manage runtime costs, compute efficiency, token budgets, resource allocation, and economic optimization.
+
+| Skill                          | Responsibility                         | Inputs                   | Outputs                      | Invokes               | Critical Rules                       |
+| ------------------------------ | -------------------------------------- | ------------------------ | ---------------------------- | --------------------- | ------------------------------------ |
+| `budget-manager`               | Runtime/token governance               | usage metrics            | budget decisions             | model-router          | hard ceilings enforced               |
+| `cost-analyzer`                | Runtime-cost analysis                  | usage telemetry          | cost reports                 | metrics-engine        | accurate accounting required         |
+| `resource-allocator`           | Resource allocation management         | workloads/resources      | allocation plans             | scheduler             | starvation forbidden                 |
+| `compute-optimizer`            | Compute-efficiency optimization        | runtime telemetry        | optimized compute usage      | throughput-manager    | bounded optimization only            |
+| `token-economy-manager`        | Token-budget governance                | token usage              | token allocation             | reasoning-controller  | runaway token usage blocked          |
+| `priority-allocator`           | Priority-based resource allocation     | task priorities          | prioritized execution        | scheduler             | critical workloads prioritized       |
+| `quota-manager`                | Runtime quota enforcement              | quotas/usage             | quota verdicts               | policy-engine         | quota violations blocked             |
+| `resource-forecaster`          | Resource-demand prediction             | telemetry history        | resource forecasts           | capacity-planner      | uncertainty modeled explicitly       |
+| `cost-predictor`               | Cost forecasting                       | workload forecasts       | projected costs              | optimization-engine   | conservative estimates preferred     |
+| `efficiency-validator`         | Runtime-efficiency validation          | runtime metrics          | efficiency reports           | validator             | severe inefficiency escalated        |
+| `utilization-monitor`          | Resource-utilization monitoring        | runtime telemetry        | utilization reports          | resource-monitor      | idle-resource detection mandatory    |
+| `throughput-economist`         | Throughput/cost tradeoff optimization  | workload metrics         | optimized throughput         | throughput-manager    | stability prioritized over speed     |
+| `cache-economy-manager`        | Cache-cost optimization                | cache telemetry          | optimized caching            | knowledge-cache       | stale caches invalidated             |
+| `scaling-economist`            | Infrastructure scaling optimization    | scaling telemetry        | scaling strategies           | autoscaler            | overprovisioning minimized           |
+| `runtime-accountant`           | Runtime resource accounting            | execution telemetry      | accounting records           | audit-logger          | immutable accounting logs            |
+| `compute-scheduler`            | Compute-aware scheduling               | workloads/budgets        | compute schedules            | distributed-scheduler | budget-aware execution mandatory     |
+| `energy-efficiency-manager`    | Energy-aware execution optimization    | resource metrics         | energy-efficient execution   | compute-optimizer     | efficiency balanced with performance |
+| `capacity-economist`           | Capacity/cost balancing                | infrastructure forecasts | capacity strategies          | capacity-planner      | resilience requirements preserved    |
+| `resource-arbitrator`          | Resolve resource contention            | competing workloads      | arbitration decisions        | scheduler             | fairness guarantees required         |
+| `cost-governor`                | Runtime cost-governance enforcement    | runtime costs            | governance decisions         | policy-engine         | runaway costs halted                 |
+| `economic-simulator`           | Resource/cost simulation               | workload models          | economic forecasts           | simulation-engine     | realistic assumptions required       |
+| `resource-auditor`             | Resource-usage auditing                | telemetry/history        | audit reports                | audit-logger          | traceable resource accounting        |
+| `optimization-economist`       | Cost-aware optimization proposals      | runtime telemetry        | optimization recommendations | self-improvement      | regressions forbidden                |
+| `latency-cost-balancer`        | Latency/cost balancing                 | runtime metrics          | balanced execution strategy  | latency-monitor       | latency SLAs preserved               |
+| `resource-reservation-manager` | Reserved-resource governance           | reservations             | reserved allocations         | resource-allocator    | reservation conflicts forbidden      |
+| `budget-forecast-engine`       | Long-term budget forecasting           | historical telemetry     | budget forecasts             | metrics-engine        | uncertainty explicitly modeled       |
+| `runtime-throttler`            | Budget-aware throttling                | usage telemetry          | throttled execution          | throttle-manager      | graceful degradation required        |
+| `idle-resource-reclaimer`      | Reclaim unused resources               | utilization reports      | reclaimed capacity           | cleanup-manager       | active workloads protected           |
+| `economic-policy-engine`       | Resource-governance policy enforcement | governance rules         | economic policies            | governance-engine     | policy consistency mandatory         |
+| `fairness-controller`          | Fair-resource distribution             | workload priorities      | fairness-adjusted execution  | scheduler             | starvation prevention mandatory      |
+# Workflow & Process Automation Skills
+
+These govern reusable workflows, process templates, automation pipelines, orchestration patterns, and execution lifecycle management.
+
+| Skill                        | Responsibility                        | Inputs                  | Outputs                | Invokes               | Critical Rules                    |
+| ---------------------------- | ------------------------------------- | ----------------------- | ---------------------- | --------------------- | --------------------------------- |
+| `workflow-engine`            | Execute workflow graphs               | workflow definitions    | workflow execution     | scheduler             | deterministic workflows required  |
+| `workflow-template-manager`  | Reusable workflow-template governance | workflow templates      | managed templates      | workflow-engine       | version-controlled templates only |
+| `pipeline-orchestrator`      | Multi-stage pipeline coordination     | execution pipelines     | orchestrated execution | sdlc                  | stage-order integrity mandatory   |
+| `automation-manager`         | Automation lifecycle management       | automation rules        | active automations     | policy-engine         | unsafe automation blocked         |
+| `trigger-engine`             | Event-triggered workflow activation   | runtime events          | triggered workflows    | event-bus             | deterministic trigger ordering    |
+| `workflow-validator`         | Workflow correctness validation       | workflow graphs         | validation reports     | validator             | cyclic workflows rejected         |
+| `process-coordinator`        | Multi-process coordination            | process states          | synchronized processes | runtime-synchronizer  | process isolation required        |
+| `task-dispatcher`            | Task distribution/orchestration       | runnable tasks          | dispatched tasks       | scheduler             | dependency order preserved        |
+| `execution-pipeline-manager` | Pipeline execution governance         | execution stages        | managed pipelines      | pipeline-orchestrator | failed stages halt pipelines      |
+| `automation-scheduler`       | Scheduled automation execution        | schedules/events        | scheduled runs         | scheduler             | missed schedules logged           |
+| `workflow-checkpointer`      | Workflow-state persistence            | workflow state          | checkpoints            | checkpoint-manager    | recoverable workflows mandatory   |
+| `process-validator`          | Process-integrity validation          | process state           | process verdicts       | validator             | inconsistent processes halted     |
+| `event-trigger-router`       | Trigger-event routing                 | runtime events          | routed triggers        | trigger-engine        | duplicate triggers prevented      |
+| `state-transition-manager`   | Workflow-state transition governance  | workflow states         | valid transitions      | phase-manager         | illegal transitions blocked       |
+| `execution-router`           | Route execution flows                 | execution metadata      | routed execution       | workflow-engine       | deterministic routing required    |
+| `automation-auditor`         | Automation-history auditing           | automation telemetry    | audit reports          | audit-logger          | immutable automation logs         |
+| `pipeline-optimizer`         | Pipeline-performance optimization     | pipeline telemetry      | optimized pipelines    | optimization-engine   | workflow semantics preserved      |
+| `retry-orchestrator`         | Workflow retry coordination           | failed stages           | retry execution        | retry-controller      | bounded retries enforced          |
+| `handoff-coordinator`        | Cross-stage handoff management        | workflow outputs        | synchronized handoffs  | handoff-manager       | artifact consistency required     |
+| `parallel-workflow-manager`  | Concurrent-workflow governance        | workflow DAGs           | parallel workflows     | parallelism-manager   | conflicting workflows isolated    |
+| `dependency-gatekeeper`      | Workflow-dependency enforcement       | task dependencies       | gated execution        | dependency-resolver   | unsatisfied dependencies blocked  |
+| `automation-policy-engine`   | Workflow-governance enforcement       | workflow policies       | policy verdicts        | policy-engine         | non-compliant workflows denied    |
+| `execution-recorder`         | Workflow-execution recording          | execution events        | execution history      | audit-logger          | full workflow traceability        |
+| `rollback-orchestrator`      | Workflow rollback coordination        | rollback requests       | rollback execution     | rollback-manager      | partial rollback forbidden        |
+| `workflow-analytics-engine`  | Workflow telemetry analysis           | workflow metrics        | analytics reports      | metrics-engine        | bottleneck analysis mandatory     |
+| `dynamic-workflow-adapter`   | Adaptive workflow modification        | runtime telemetry       | adapted workflows      | adaptive-planner      | invariants preserved              |
+| `process-isolation-manager`  | Process-boundary enforcement          | concurrent processes    | isolated processes     | sandbox-enforcer      | cross-process leakage forbidden   |
+| `orchestration-monitor`      | Workflow/orchestration monitoring     | orchestration telemetry | orchestration reports  | health-monitor        | stuck workflows escalated         |
+| `job-lifecycle-manager`      | Job lifecycle governance              | jobs/execution state    | managed jobs           | task-queue            | orphan jobs forbidden             |
+| `workflow-recovery-engine`   | Workflow failure recovery             | failed workflows        | recovered workflows    | replanner             | deterministic recovery required   |
+
+---
+
+# Compliance, Governance & Audit Skills
+
+These govern regulatory compliance, auditability, governance enforcement, accountability, and policy adherence.
+
+| Skill                         | Responsibility                          | Inputs                  | Outputs                       | Invokes                | Critical Rules                         |
+| ----------------------------- | --------------------------------------- | ----------------------- | ----------------------------- | ---------------------- | -------------------------------------- |
+| `compliance-checker`          | Policy/spec compliance validation       | runtime state           | compliance reports            | validator              | governance enforcement mandatory       |
+| `governance-engine`           | Runtime governance coordination         | governance configs      | governance actions            | policy-engine          | policy consistency required            |
+| `audit-logger`                | Immutable audit logging                 | runtime actions         | audit trails                  | archive-manager        | append-only logs                       |
+| `audit-validator`             | Audit-trail integrity validation        | audit records           | validation reports            | validator              | tampered audits rejected               |
+| `regulation-manager`          | Regulatory-rule governance              | compliance rules        | enforced regulations          | compliance-checker     | outdated regulations rejected          |
+| `policy-enforcer`             | Runtime-policy enforcement              | runtime actions         | enforcement verdicts          | policy-engine          | deny-by-default policies               |
+| `traceability-engine`         | End-to-end traceability management      | artifacts/events        | traceability graph            | lineage-tracker        | full provenance required               |
+| `risk-governor`               | System-wide risk governance             | runtime risks           | mitigation decisions          | risk-evaluator         | HIGH-risk escalation mandatory         |
+| `evidence-manager`            | Audit-evidence preservation             | logs/artifacts          | preserved evidence            | archive-manager        | evidence immutability mandatory        |
+| `compliance-reporter`         | Compliance-report generation            | audit/compliance data   | compliance reports            | compliance-report      | audit-ready reporting required         |
+| `governance-validator`        | Governance-consistency validation       | governance state        | validation verdicts           | invariant-checker      | conflicting governance blocked         |
+| `retention-policy-manager`    | Data/artifact retention governance      | retention rules         | retention actions             | data-retention-manager | policy-compliant retention mandatory   |
+| `privacy-governor`            | Privacy-policy governance               | sensitive data          | privacy verdicts              | data-loss-prevention   | unauthorized exposure blocked          |
+| `consent-auditor`             | Consent-history validation              | consent records         | consent audits                | consent-manager        | explicit consent traceability required |
+| `accountability-engine`       | Responsibility/accountability tracking  | runtime actions         | accountability records        | audit-logger           | actor attribution mandatory            |
+| `legal-compliance-engine`     | Legal/regulatory validation             | runtime operations      | legal-compliance verdicts     | compliance-checker     | legal violations escalated             |
+| `ethics-review-board`         | Ethical-governance analysis             | runtime decisions       | ethical verdicts              | ethics-guard           | unethical behavior blocked             |
+| `governance-orchestrator`     | Governance-subsystem coordination       | governance states       | coordinated governance        | meta-orchestrator      | governance synchronization required    |
+| `policy-version-manager`      | Policy-version governance               | policies/rules          | versioned policies            | archive-manager        | immutable policy history               |
+| `audit-replay-engine`         | Replay historical audit trails          | audit logs              | replayed audits               | replay-memory          | deterministic replay required          |
+| `certification-manager`       | Certification/compliance tracking       | certifications          | certification status          | compliance-reporter    | expired certifications invalid         |
+| `data-sovereignty-manager`    | Jurisdictional-data governance          | data locality rules     | sovereignty verdicts          | privacy-governor       | cross-region violations blocked        |
+| `governance-analytics-engine` | Governance telemetry analysis           | governance metrics      | governance insights           | metrics-engine         | governance drift detection mandatory   |
+| `risk-audit-engine`           | Risk-focused audit analysis             | risk telemetry          | audit findings                | diagnostics            | unresolved risks escalated             |
+| `transparency-validator`      | Transparency/compliance validation      | runtime actions         | transparency reports          | transparency-engine    | hidden critical actions rejected       |
+| `chain-of-custody-manager`    | Artifact custody tracking               | sensitive artifacts     | custody chains                | provenance-engine      | immutable custody tracking             |
+| `compliance-simulator`        | Simulate governance/compliance outcomes | policy changes          | simulated compliance outcomes | simulation-engine      | unsafe policies flagged                |
+| `disclosure-manager`          | Disclosure/reporting governance         | disclosure requirements | managed disclosures           | audit-reporter         | mandatory disclosures enforced         |
+| `oversight-coordinator`       | Human/regulatory oversight coordination | oversight requests      | coordinated oversight         | approval-manager       | oversight actions logged               |
+| `trust-governance-engine`     | Trust/reputation governance             | trust metrics           | governance decisions          | trust-manager          | trust manipulation forbidden           |
+
+---
+
+# Final Runtime Shape
+
+## Public Layer (User-Facing)
+
+```text id="n2lmga"
+build
+debug
+review
+architect
+test
+document
+optimize
+secure
+research
+```
+
+---
+
+## Internal Runtime Layer
+
+```text id="q3nqqf"
+100+ specialized orchestration/runtime skills
+```
+
+---
+
+# Architectural Principle
+
+## Users interact with:
+
+* workflows
+* goals
+* outcomes
+* engineering intent
+
+## The runtime internally manages:
+
+* orchestration
+* retries
+* consensus
+* validation
+* governance
+* memory
+* observability
+* distributed execution
+* safety
+* compliance
+* optimization
+* recovery
+
+This separation gives:
+
+* stable UX
+* hidden implementation freedom
+* deterministic orchestration
+* modular scaling
+* safer long-term evolution
+* enterprise-grade runtime governance
