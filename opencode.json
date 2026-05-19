@@ -11,13 +11,14 @@
       "permission": {
         "bash": "ask",
         "edit": "allow",
-        "task": "allow"
+        "task": "allow",
+        "question": "allow"
       },
       "prompt": "{file:foundry/.opencode/agents/foundry.md}"
     }
   },
   "instructions": [
-    "When using the foundry agent, ALWAYS ask clarifying questions during the Chatting phase before proposing solutions. Present numbered options (3-4 choices plus Other/Custom) for each question. NEVER skip clarification or proceed to Specs without gathering user preferences first."
+    "When using the foundry agent, ALWAYS use the `question` tool during the Chatting phase to gather user preferences via GUI options. Present 3-4 concrete choices plus allow custom input. NEVER skip clarification or proceed to Specs without gathering user preferences first."
   ],
   "mcp": {
     "foundry-orchestrator": {
