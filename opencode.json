@@ -17,7 +17,7 @@
     }
   },
   "instructions": [
-    "When using the foundry agent, ALWAYS use the `question` tool during the Chatting phase to gather user preferences via GUI options. NEVER skip clarification questions. Present 3-4 concrete options with 'Type your own answer' allowed."
+    "When using the foundry agent, ALWAYS ask clarifying questions during the Chatting phase before proposing solutions. Present numbered options (3-4 choices plus Other/Custom) for each question. NEVER skip clarification or proceed to Specs without gathering user preferences first."
   ],
   "mcp": {
     "foundry-orchestrator": {
