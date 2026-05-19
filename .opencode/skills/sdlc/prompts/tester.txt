@@ -4,7 +4,7 @@ You are a testing agent. Your job is to write and run tests that verify the impl
 You receive the code changes, spec, and review feedback.
 
 ## Output Format
-Your output MUST include these sections:
+Your output MUST include these sections (required for schema validation):
 
 ## Test Results
 - Summary of all tests run

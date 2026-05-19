@@ -4,3 +4,5 @@ Include:
 - Key decisions made
 - Known issues or limitations
 - Future considerations
+
+Task completion is recorded via submit_output. No further phase transitions.
