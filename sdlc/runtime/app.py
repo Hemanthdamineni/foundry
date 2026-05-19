@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from mcp.server.fastmcp import Context, FastMCP
 
 from sdlc.adapters.llm import LLMProvider, ModelRouter, OllamaProvider, OpenAIProvider
 from sdlc.adapters.memory import Acervo, MemoryAdapter
+from sdlc.adapters.tools.mypy import MypyAdapter
+from sdlc.adapters.tools.pytest import PytestAdapter
+from sdlc.adapters.tools.ruff import RuffAdapter
 from sdlc.config import PACKAGE_ROOT, Settings, settings
 from sdlc.engine.checkpoint import CheckpointManager
 from sdlc.engine.debate_runtime import DebateRuntime
@@ -21,6 +25,8 @@ from sdlc.log import bootstrap_logging, get_logger
 from sdlc.models import Checkpoint, IndexConfig, Task, WriteOp
 from sdlc.runtime.pipelines.default import IndexPipeline
 from sdlc.runtime.store_sqlite import SqliteStore
+from sdlc.runtime.tool_executor import ToolExecutor
+from sdlc.runtime.tool_gate import ToolGate
 from sdlc.runtime.tools import debug as debug_tools
 from sdlc.runtime.tools import phase as phase_tools
 from sdlc.runtime.tools import task as task_tools
@@ -52,6 +58,8 @@ class SDLCAppContext:
         debate_runtime: DebateRuntime | None = None,
         acervo: Acervo | None = None,
         memory_adapter: MemoryAdapter | None = None,
+        tool_executor: ToolExecutor | None = None,
+        tool_gate: ToolGate | None = None,
     ) -> None:
         self.store = store
         self.checkpoint_mgr = checkpoint_mgr
@@ -67,6 +75,8 @@ class SDLCAppContext:
         self.debate_runtime = debate_runtime
         self.acervo = acervo
         self.memory_adapter = memory_adapter
+        self.tool_executor = tool_executor
+        self.tool_gate = tool_gate
 
 
 def _make_write_handler(
@@ -232,6 +242,34 @@ async def lifespan(_server: FastMCP) -> AsyncIterator[SDLCAppContext]:
         tracer=tracer,
     )
 
+    tool_executor = ToolExecutor(default_timeout_s=30.0, max_retries=1)
+    tool_executor.register(RuffAdapter())
+    tool_executor.register(MypyAdapter())
+    tool_executor.register(PytestAdapter())
+
+    health = await tool_executor.healthcheck_all()
+    for name, ok in health.items():
+        if not ok:
+            logger.warning(
+                "Tool adapter health check failed",
+                extra={"tool": name, "healthy": ok},
+            )
+
+    tool_gate = ToolGate(
+        gate_order=[("lint", "ruff"), ("types", "mypy"), ("tests", "pytest")],
+    )
+    tool_gate.add_exception("Coding", "tests")
+    tool_gate.add_exception("Testing", "lint")
+    tool_gate.add_exception("Testing", "types")
+    for phase in ("Chatting", "Specs", "Planning", "Review"):
+        for gate in ("lint", "types", "tests"):
+            tool_gate.add_exception(phase, gate)
+
+    logger.info("ToolExecutor and ToolGate initialized", extra={
+        "registered_tools": list(tool_executor._adapters.keys()),
+        "healthy_tools": [n for n, h in health.items() if h],
+    })
+
     index_config = IndexConfig(
         enabled=settings.index.enabled,
         max_files=settings.index.max_files,
@@ -274,10 +312,13 @@ async def lifespan(_server: FastMCP) -> AsyncIterator[SDLCAppContext]:
         debate_runtime=debate_runtime,
         acervo=acervo,
         memory_adapter=memory_adapter,
+        tool_executor=tool_executor,
+        tool_gate=tool_gate,
         config={
             "max_iterations": settings.max_iterations,
             "mode": "feature",
             "judge_prompts": judge_prompts,
+            "workspace_path": str(Path.cwd()),
         },
     )
     try:
@@ -298,9 +339,11 @@ async def sdlc_create_task(
     mode: str = "feature",
     ctx: Context[Any, Any, Any] | None = None,
 ) -> dict[str, str]:
-    supported_modes = {"feature", "bugfix", "refactor", "research", "docs"}
-    if mode not in supported_modes:
-        msg = f"Unsupported graph template: {mode}. Supported: {supported_modes}"
+    if mode != "feature":
+        msg = (
+            f"Unsupported mode: '{mode}'. Only 'feature' workflow is supported "
+            "in MVP. Other modes (bugfix, refactor, research, docs) are deferred."
+        )
         raise ValueError(msg)
     sdlc_ctx = _require_context(ctx)
     judge_prompts = sdlc_ctx.config.get("judge_prompts", {})
@@ -356,6 +399,9 @@ async def sdlc_submit_output(
         judge_engine=sdlc_ctx.judge_engine,
         tracer=sdlc_ctx.tracer,
         debate_runtime=sdlc_ctx.debate_runtime,
+        tool_executor=sdlc_ctx.tool_executor,
+        tool_gate=sdlc_ctx.tool_gate,
+        workspace_path=str(sdlc_ctx.config.get("workspace_path", ".")),
     )
 
 
@@ -405,6 +451,19 @@ async def sdlc_cancel_task(
 ) -> dict[str, Any]:
     sdlc_ctx = _require_context(ctx)
     return await task_tools.cancel_task(sdlc_ctx.store, sdlc_ctx.write_queue, task_id)
+
+
+@app.tool()
+async def sdlc_resume_task(
+    task_id: str,
+    ctx: Context[Any, Any, Any] | None = None,
+) -> dict[str, Any]:
+    sdlc_ctx = _require_context(ctx)
+    return await task_tools.resume_task(
+        sdlc_ctx.store,
+        sdlc_ctx.checkpoint_mgr,
+        task_id,
+    )
 
 
 @app.tool()

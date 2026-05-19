@@ -1,18 +1,18 @@
 {
-  "agents": {
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
     "dev-sdlc": {
       "mode": "primary",
       "prompt": "{file:.opencode/skills/sdlc/SKILL.md}"
     }
   },
   "instructions": [],
-  "mcpServers": {
+  "mcp": {
     "sdlc-orchestrator": {
-      "args": [],
-      "command": "sdlc-mcp",
-      "env": {},
-      "type": "stdio"
+      "command": ["sdlc-mcp"],
+      "enabled": true,
+      "environment": {},
+      "type": "local"
     }
-  },
-  "plugins": []
+  }
 }

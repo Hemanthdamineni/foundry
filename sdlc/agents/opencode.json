@@ -1,17 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "mcpServers": {
+  "mcp": {
     "sdlc-orchestrator": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "sdlc"],
-      "env": {
+      "command": ["python", "-m", "sdlc"],
+      "enabled": true,
+      "environment": {
         "SDLC_DB_PATH": "./data/sdlc.db",
         "SDLC_CONFIG_DIR": "./configs",
         "SDLC_LOG_PATH": "./data/logs/sdlc.log",
         "SDLC_TRACE_DIR": "./data/traces",
         "SDLC_MAX_ITERATIONS": "8"
-      }
+      },
+      "type": "local"
     }
   },
   "instructions": [

@@ -114,6 +114,9 @@ class Task(BaseModel):
     current_phase: str = "Chatting"
     history: list[PhaseRecord] = Field(default_factory=list)
     iteration_count: int = 0
+    retry_count: int = 0
+    last_failure_reason: str | None = None
+    last_failure_type: str | None = None
     budget: BudgetPolicy = Field(default_factory=BudgetPolicy)
     snapshot: ExecutionSnapshot | None = None
     locked_prompts: dict[str, str] = Field(default_factory=dict)

@@ -1,6 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "agent": {
+    "dev-sdlc": {
+      "mode": "primary",
+      "prompt": "{file:.opencode/skills/sdlc/SKILL.md}"
+    },
     "foundry": {
       "description": "Foundry workspace-aware SDLC orchestration agent with deterministic bootstrap, validation, tracing, and recovery.",
       "mode": "primary",

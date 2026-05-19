@@ -24,6 +24,9 @@ class TestModels:
         assert task.status == TaskStatus.ACTIVE
         assert task.current_phase == "Chatting"
         assert task.iteration_count == 0
+        assert task.retry_count == 0
+        assert task.last_failure_reason is None
+        assert task.last_failure_type is None
         assert task.history == []
 
     def test_task_with_budget(self) -> None:
@@ -31,6 +34,26 @@ class TestModels:
         task = Task(task_id="t2", description="bugfix", budget=budget)
         assert task.budget.max_total_tokens == 50_000
         assert task.budget.max_review_cycles == 4
+
+    def test_task_retry_metadata_defaults(self) -> None:
+        task = Task(task_id="t3", description="retry test")
+        assert task.retry_count == 0
+        assert task.last_failure_reason is None
+        assert task.last_failure_type is None
+
+    def test_task_retry_metadata_roundtrip(self) -> None:
+        task = Task(
+            task_id="t4",
+            description="retry test",
+            retry_count=3,
+            last_failure_reason="lint failed",
+            last_failure_type="permanent",
+        )
+        data = task.model_dump(mode="json")
+        restored = Task(**data)
+        assert restored.retry_count == 3
+        assert restored.last_failure_reason == "lint failed"
+        assert restored.last_failure_type == "permanent"
 
     def test_phase_record_defaults(self) -> None:
         rec = PhaseRecord(phase="Coding")

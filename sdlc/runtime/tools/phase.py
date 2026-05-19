@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
+import os
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+MAX_GATE_RETRY_CEILING = int(os.environ.get("SDLC_MAX_GATE_RETRY_CEILING", "3"))
+
 from sdlc.engine.orchestrator import OrchestratorError
+from sdlc.engine.schema_checks import validate_phase_output
 from sdlc.models import (
     Checkpoint,
     DebateTranscript,
@@ -17,6 +22,8 @@ from sdlc.models import (
     TaskStatus,
     WriteOp,
 )
+from sdlc.runtime.tool_executor import ToolResult
+from sdlc.runtime.tool_gate import GateResult
 
 if TYPE_CHECKING:
     from sdlc.engine.checkpoint import CheckpointManager
@@ -25,7 +32,8 @@ if TYPE_CHECKING:
     from sdlc.engine.judge import JudgeEngine
     from sdlc.engine.orchestrator import OrchestratorFSM
     from sdlc.runtime.pipelines.default import IndexPipeline
-    from sdlc.runtime.store_backend import StoreBackend
+    from sdlc.runtime.tool_executor import ToolExecutor
+    from sdlc.runtime.tool_gate import ToolGate, GateSequenceResult
     from sdlc.runtime.tracing import Tracer
     from sdlc.runtime.write_queue import WriteQueue
 
@@ -174,6 +182,62 @@ def _debate_dict(transcript: DebateTranscript | None) -> dict[str, Any] | None:
     }
 
 
+def _requires_tool_gate(phase: str) -> bool:
+    return phase in ("Coding", "Testing")
+
+
+def _map_to_gate_result(
+    gate_name: str,
+    tool_name: str,
+    result: ToolResult,
+) -> GateResult:
+    return GateResult(
+        gate=gate_name,
+        tool=tool_name,
+        passed=result.passed,
+        output=result.output,
+        errors=result.errors,
+        duration_ms=result.duration_ms,
+        skipped=False,
+        failure_class=result.failure_class,
+    )
+
+
+async def _execute_gates(
+    tool_executor: ToolExecutor,
+    tool_gate: ToolGate,
+    gates: list[tuple[str, str]],
+    task_id: str,
+    phase: str,
+    workspace_path: str,
+) -> GateSequenceResult:
+    payload: dict[str, object] = {
+        "task_id": task_id,
+        "phase": phase,
+        "path": workspace_path,
+        "timeout_s": 30,
+    }
+    gate_results: list[GateResult] = []
+    for gate_name, tool_name in gates:
+        tool_result = await tool_executor.execute(tool_name, payload)
+        gate_result = _map_to_gate_result(gate_name, tool_name, tool_result)
+        gate_results.append(gate_result)
+        if not tool_result.passed:
+            remaining = gates[len(gate_results):]
+            for rem_gate_name, rem_tool_name in remaining:
+                gate_results.append(
+                    GateResult(
+                        gate=rem_gate_name,
+                        tool=rem_tool_name,
+                        passed=False,
+                        skipped=True,
+                        skip_reason=f"Previous gate failed: {gate_name}",
+                    ),
+                )
+            break
+    return tool_gate.evaluate_sequence(gate_results)
+
+
 def _is_iteration_limit_reached(
     phase: str,
     resolved: str,
@@ -230,11 +294,21 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
     judge_engine: JudgeEngine | None = None,
     tracer: Tracer | None = None,
     debate_runtime: DebateRuntime | None = None,
+    tool_executor: ToolExecutor | None = None,
+    tool_gate: ToolGate | None = None,
+    workspace_path: str = ".",
 ) -> dict[str, Any]:
     raw = await store.get_task(task_id)
     if raw is None:
         return {"accepted": False, "error": f"Task not found: {task_id}"}
     task = Task(**raw)
+
+    if task.status in (TaskStatus.DONE, TaskStatus.CANCELLED, TaskStatus.STALLED):
+        return {
+            "accepted": False,
+            "error": f"Task is {task.status.value}. Cannot submit output.",
+        }
+
     if tracer is not None:
         await tracer.record_span(
             tracer.create_trace_id(),
@@ -250,6 +324,13 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
             "hint": "Call sdlc_get_next_action to resync",
         }
 
+    if phase == "Chatting" and next_phase == "Done":
+        return {
+            "accepted": False,
+            "error": "Chatting -> Done shortcut is disabled for normal feature tasks.",
+            "hint": "Omit next_phase or set next_phase to 'Specs'.",
+        }
+
     budget_check = await policy.check_budget(task)
     if budget_check.action == DecisionAction.ABORT:
         return {
@@ -262,6 +343,35 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
         resolved = orchestrator.submit(phase, target=next_phase)
     except OrchestratorError as e:
         return {"accepted": False, "error": str(e), "hint": "Check phase graph configuration."}
+
+    schema_violations = validate_phase_output(phase, output)
+    if schema_violations:
+        record = PhaseRecord(
+            phase=phase,
+            status=PhaseStatus.REJECTED,
+            output=output,
+            error="schema_validation_failed",
+            completed_at=datetime.now(UTC),
+            iteration_count=task.iteration_count,
+        )
+        task.history.append(record)
+        task.updated_at = datetime.now(UTC)
+        await write_queue.enqueue(
+            WriteOp(target="task", action="update", payload=task.model_dump(mode="json")),
+        )
+        await write_queue.flush()
+        return {
+            "accepted": False,
+            "error": "Schema validation failed",
+            "violations": [
+                {
+                    "section": v.section,
+                    "message": str(v),
+                    "details": v.details,
+                }
+                for v in schema_violations
+            ],
+        }
 
     task.iteration_count += 1
 
@@ -316,6 +426,91 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
     if _is_iteration_limit_reached(phase, resolved, task.iteration_count, max_iterations):
         resolved = "Done"
 
+    gate_sequence_result: GateSequenceResult | None = None
+    if _requires_tool_gate(phase) and tool_executor is not None and tool_gate is not None:
+        gates = tool_gate.get_gates_for_phase(phase)
+        if gates:
+            _gate_retry_attempt = 0
+            while True:
+                if task.retry_count >= MAX_GATE_RETRY_CEILING:
+                    task.status = TaskStatus.STALLED
+                    task.last_failure_reason = "Transient retry ceiling exhausted"
+                    task.last_failure_type = "retry_exhausted"
+                    task.updated_at = datetime.now(UTC)
+                    await write_queue.enqueue(
+                        WriteOp(
+                            target="task", action="update",
+                            payload=task.model_dump(mode="json"),
+                        ),
+                    )
+                    await write_queue.flush()
+                    return {
+                        "accepted": False,
+                        "error": "Transient retry ceiling exhausted. Task stalled.",
+                        "task_stalled": True,
+                        "retry_count": task.retry_count,
+                    }
+
+                gate_sequence_result = await _execute_gates(
+                    tool_executor, tool_gate, gates, task_id, phase, workspace_path,
+                )
+                if gate_sequence_result.passed:
+                    break
+
+                failed_gate = next(
+                    (g for g in gate_sequence_result.gates if not g.passed and not g.skipped),
+                    None,
+                )
+                is_transient = failed_gate is not None and failed_gate.failure_class in (
+                    "transient",
+                    "timeout",
+                )
+                if is_transient:
+                    task.retry_count += 1
+                    task.last_failure_reason = (
+                        f"Tool gate failed at '{gate_sequence_result.failed_at}'"
+                    )
+                    task.last_failure_type = (
+                        failed_gate.failure_class if failed_gate else "gate_failed"
+                    )
+                    task.updated_at = datetime.now(UTC)
+                    await write_queue.enqueue(
+                        WriteOp(
+                            target="task", action="update",
+                            payload=task.model_dump(mode="json"),
+                        ),
+                    )
+                    await write_queue.flush()
+                    _gate_retry_attempt += 1
+                    if _gate_retry_attempt < MAX_GATE_RETRY_CEILING:
+                        await asyncio.sleep(min(2.0 ** _gate_retry_attempt, 30.0))
+                    continue
+
+                record = PhaseRecord(
+                    phase=phase,
+                    status=PhaseStatus.REJECTED,
+                    output=output,
+                    error=f"Tool gate failed at '{gate_sequence_result.failed_at}'",
+                    completed_at=datetime.now(UTC),
+                    iteration_count=task.iteration_count,
+                )
+                task.history.append(record)
+                task.updated_at = datetime.now(UTC)
+                await write_queue.enqueue(
+                    WriteOp(
+                        target="task",
+                        action="update",
+                        payload=task.model_dump(mode="json"),
+                    ),
+                )
+                await write_queue.flush()
+                return {
+                    "accepted": False,
+                    "error": f"Tool gate failed at '{gate_sequence_result.failed_at}'",
+                    "gate_summary": gate_sequence_result.summary,
+                    "gates": [g.model_dump() for g in gate_sequence_result.gates],
+                }
+
     record = PhaseRecord(
         phase=phase,
         status=PhaseStatus.ACCEPTED,
@@ -326,6 +521,9 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
     task.history.append(record)
     task.current_phase = resolved
     task.requires_approval = False
+    task.retry_count = 0
+    task.last_failure_reason = None
+    task.last_failure_type = None
     task.updated_at = datetime.now(UTC)
     if resolved == "Done":
         task.status = TaskStatus.DONE
@@ -366,6 +564,9 @@ async def submit_output(  # noqa: C901, PLR0912, PLR0913
         "iteration_count": task.iteration_count,
         "judge_verdict": verdict.model_dump(mode="json") if verdict else None,
     }
+    if gate_sequence_result is not None:
+        result["gate_summary"] = gate_sequence_result.summary
+        result["gates"] = [g.model_dump() for g in gate_sequence_result.gates]
     debate_info = _debate_dict(debate_transcript)
     if debate_info:
         result["debate"] = debate_info

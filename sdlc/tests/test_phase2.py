@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from pathlib import Path
+
 import pytest
+
+# Ensure tool binaries (ruff, mypy, pytest) are on PATH for adapter tests
+TESTS_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = TESTS_DIR.parent
+_PIXI_BIN = str(PROJECT_DIR / ".pixi" / "envs" / "default" / "bin")
+if os.path.exists(_PIXI_BIN):
+    os.environ["PATH"] = f"{_PIXI_BIN}:{os.environ.get('PATH', '')}"
 
 from sdlc.adapters.base import ToolAdapter, ToolCapability
 from sdlc.adapters.tools.mypy import MypyAdapter

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -12,27 +13,31 @@ from sdlc.engine.orchestrator import OrchestratorError, OrchestratorFSM
 from sdlc.engine.phase_graph import PhaseGraph, PhaseGraphError
 from sdlc.models import BudgetPolicy, Checkpoint, FailureType, PhaseRecord, Task
 
+TESTS_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = TESTS_DIR.parent
+GRAPH_FILE = PROJECT_DIR / "graphs" / "feature.yaml"
+
 
 class TestPhaseGraph:
     def test_load_feature_graph(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         assert "Chatting" in graph.phases
         assert "Done" in graph.phases
         assert graph.is_valid_transition("Specs", "Planning")
         assert not graph.is_valid_transition("Planning", "Specs")
 
     def test_review_loop(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         assert graph.is_valid_transition("Coding", "Review")
         assert graph.is_valid_transition("Review", "Coding")
         assert graph.is_valid_transition("Review", "Testing")
 
     def test_no_outgoing_from_done(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         assert graph.possible_next("Done") == []
 
     def test_progress_calculation(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         assert graph.progress("Chatting") == pytest.approx(14.28, rel=0.5)
         assert graph.progress("Done") == 100.0
 
@@ -67,7 +72,7 @@ class TestPhaseGraph:
         assert graph.next_phase("A") == "B"
 
     def test_possible_next_multiple(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         assert set(graph.possible_next("Review")) == {"Coding", "Testing"}
 
 
@@ -83,13 +88,13 @@ class TestOrchestratorFSM:
         assert fsm.submit("B") == "Done"
 
     def test_submit_review_loop_coding(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         policy = ExecutionPolicy()
         fsm = OrchestratorFSM(graph, policy)
         assert fsm.submit("Coding") == "Review"
 
     def test_submit_review_loop_forward(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         policy = ExecutionPolicy()
         fsm = OrchestratorFSM(graph, policy)
         result = fsm.submit("Review", target="Testing")
@@ -98,21 +103,21 @@ class TestOrchestratorFSM:
         assert result == "Coding"
 
     def test_can_submit(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         policy = ExecutionPolicy()
         fsm = OrchestratorFSM(graph, policy)
         assert fsm.can_submit("Specs")
         assert not fsm.can_submit("Done")
 
     def test_is_terminal(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         policy = ExecutionPolicy()
         fsm = OrchestratorFSM(graph, policy)
         assert fsm.is_terminal("Done")
         assert not fsm.is_terminal("Coding")
 
     def test_invalid_phase(self) -> None:
-        graph = PhaseGraph.from_file("graphs/feature.yaml")
+        graph = PhaseGraph.from_file(GRAPH_FILE)
         policy = ExecutionPolicy()
         fsm = OrchestratorFSM(graph, policy)
         with pytest.raises(OrchestratorError, match="Unknown phase"):

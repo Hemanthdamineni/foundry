@@ -14,7 +14,18 @@ TESTS_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = TESTS_DIR.parent
 REPO_DIR = PROJECT_DIR.parent
 
-_PYTHON = sys.executable
+# Find the Python that has all dependencies installed
+_PIXI_PYTHON = str(PROJECT_DIR / ".pixi" / "envs" / "default" / "bin" / "python")
+_VENV_PYTHON = str(REPO_DIR / ".venv" / "bin" / "python")
+if os.path.exists(_PIXI_PYTHON):
+    _PYTHON = _PIXI_PYTHON
+    _TOOL_BIN = str(PROJECT_DIR / ".pixi" / "envs" / "default" / "bin")
+elif os.path.exists(_VENV_PYTHON):
+    _PYTHON = _VENV_PYTHON
+    _TOOL_BIN = str(REPO_DIR / ".venv" / "bin")
+else:
+    _PYTHON = sys.executable
+    _TOOL_BIN = ""
 
 MCP_INITIALIZE = {
     "jsonrpc": "2.0",
@@ -32,6 +43,8 @@ MCP_INITIALIZE = {
 def sdlc_server(tmp_path: Path):
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO_DIR)
+    if _TOOL_BIN and os.path.exists(_TOOL_BIN):
+        env["PATH"] = f"{_TOOL_BIN}:{env.get('PATH', '')}"
     server = subprocess.Popen(
         [_PYTHON, "-m", "sdlc"],
         cwd=tmp_path,
@@ -54,17 +67,20 @@ def initialized_server(sdlc_server):
 
 
 def _send_request(server: subprocess.Popen, request: dict) -> dict:
+    """Send a JSON-RPC request and read the response, skipping notifications."""
     line = json.dumps(request) + "\n"
     server.stdin.write(line.encode())
     server.stdin.flush()
-    response = server.stdout.readline()
-    if not response:
-        stderr_output = server.stderr.read().decode() if server.stderr else "no stderr"
-        raise AssertionError(f"Empty response from server. stderr:\n{stderr_output}")
-    data = json.loads(response.decode().strip())
-    if "error" in data:
-        raise AssertionError(f"RPC error: {data['error']}")
-    return data
+    while True:
+        response = server.stdout.readline()
+        if not response:
+            stderr_output = server.stderr.read().decode() if server.stderr else "no stderr"
+            raise AssertionError(f"Empty response from server. stderr:\n{stderr_output}")
+        data = json.loads(response.decode().strip())
+        if "id" in data:
+            if "error" in data:
+                raise AssertionError(f"RPC error: {data['error']}")
+            return data
 
 
 def _send_notification(server: subprocess.Popen, notification: dict) -> None:

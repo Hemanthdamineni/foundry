@@ -26,6 +26,7 @@ class GateResult(BaseModel):
     duration_ms: float = 0.0
     skipped: bool = False
     skip_reason: str = ""
+    failure_class: str = ""  # transient, permanent, timeout, not_found
 
 
 class GateSequenceResult(BaseModel):

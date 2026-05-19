@@ -1,4 +1,4 @@
-"""Task lifecycle MCP tools — create, list, status, cancel."""
+"""Task lifecycle MCP tools — create, list, status, cancel, resume."""
 
 from __future__ import annotations
 
@@ -6,9 +6,11 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from sdlc.engine.checkpoint import CheckpointError
 from sdlc.models import Task, TaskStatus, WriteOp
 
 if TYPE_CHECKING:
+    from sdlc.engine.checkpoint import CheckpointManager
     from sdlc.engine.phase_graph import PhaseGraph
     from sdlc.runtime.store_backend import StoreBackend
     from sdlc.runtime.write_queue import WriteQueue
@@ -68,6 +70,9 @@ async def get_status(store: StoreBackend, graph: PhaseGraph, task_id: str) -> di
         "mode": task.mode,
         "history": history,
         "iteration_count": task.iteration_count,
+        "retry_count": task.retry_count,
+        "last_failure_reason": task.last_failure_reason,
+        "last_failure_type": task.last_failure_type,
         "estimated_progress": f"{round(graph.progress(task.current_phase))}%",
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
@@ -103,3 +108,92 @@ async def cancel_task(store: StoreBackend, write_queue: WriteQueue, task_id: str
     )
     await write_queue.flush()
     return {"success": True, "cancelled_debate_agents": 0}
+
+
+async def resume_task(
+    store: StoreBackend,
+    checkpoint_mgr: CheckpointManager,
+    task_id: str,
+) -> dict[str, Any]:
+    """Restore task from latest checkpoint.
+
+    Explicit MVP recovery entrypoint. SQLite is normal authority; checkpoint
+    is the recovery snapshot. Returns mismatch/corrupt/not-recoverable errors
+    explicitly without silently overwriting state.
+    """
+    try:
+        checkpoint = checkpoint_mgr.restore(task_id)
+    except CheckpointError as e:
+        return {
+            "recovered": False,
+            "error": f"Checkpoint corrupt: {e}",
+            "corrupt": True,
+        }
+
+    if checkpoint is None:
+        return {
+            "recovered": False,
+            "error": f"No checkpoint found for task {task_id}",
+            "not_recoverable": True,
+        }
+
+    raw = await store.get_task(task_id)
+
+    if raw is None:
+        task = Task(
+            task_id=checkpoint.task_id,
+            description=f"Restored from checkpoint (phase: {checkpoint.phase})",
+            mode="feature",
+            status=TaskStatus.ACTIVE,
+            current_phase=checkpoint.phase,
+            history=list(checkpoint.history),
+            iteration_count=checkpoint.iteration_count,
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
+        )
+        await store.create_task(task.model_dump(mode="json"))
+        return {
+            "recovered": True,
+            "restored_from_checkpoint": True,
+            "phase": task.current_phase,
+            "history_count": len(task.history),
+            "iteration_count": task.iteration_count,
+            "retry_count": task.retry_count,
+        }
+
+    task = Task(**raw)
+
+    if task.current_phase != checkpoint.phase:
+        return {
+            "recovered": False,
+            "error": (
+                f"Checkpoint/state mismatch: SQLite phase '{task.current_phase}' "
+                f"vs checkpoint phase '{checkpoint.phase}'"
+            ),
+            "mismatch": True,
+            "sqlite_phase": task.current_phase,
+            "checkpoint_phase": checkpoint.phase,
+        }
+
+    if len(task.history) != len(checkpoint.history):
+        return {
+            "recovered": False,
+            "error": (
+                f"Checkpoint/state mismatch: SQLite history length {len(task.history)} "
+                f"vs checkpoint history length {len(checkpoint.history)}"
+            ),
+            "mismatch": True,
+            "sqlite_history_count": len(task.history),
+            "checkpoint_history_count": len(checkpoint.history),
+        }
+
+    return {
+        "recovered": True,
+        "restored_from_checkpoint": False,
+        "phase": task.current_phase,
+        "history_count": len(task.history),
+        "iteration_count": task.iteration_count,
+        "retry_count": task.retry_count,
+        "last_failure_reason": task.last_failure_reason,
+        "last_failure_type": task.last_failure_type,
+    }

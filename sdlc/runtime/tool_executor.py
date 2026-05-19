@@ -6,6 +6,7 @@ TODO #4: The actual "truth layer" — makes tool execution deterministic and rel
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 from typing import Any
 
@@ -90,10 +91,35 @@ class ToolExecutor:
             return result
 
         timeout = timeout_s or self._default_timeout
-        retries = max_retries if max_retries is not None else self._max_retries
+        env_retries = os.environ.get("SDLC_TOOL_EXECUTOR_MAX_RETRIES")
+        if env_retries is not None:
+            retries = int(env_retries)
+        else:
+            retries = max_retries if max_retries is not None else self._max_retries
         last_error = ""
 
         for attempt in range(retries + 1):
+            # Test support: inject transient failures for deterministic retry testing
+            inject_str = os.environ.get("SDLC_INJECT_TRANSIENT_TOOL_FAILURES", "")
+            if inject_str:
+                inject_count = int(inject_str)
+                if inject_count > 0:
+                    os.environ["SDLC_INJECT_TRANSIENT_TOOL_FAILURES"] = str(inject_count - 1)
+                    elapsed = 0.0
+                    result = ToolResult(
+                        tool=tool_name,
+                        passed=False,
+                        failure_class="transient",
+                        errors=f"Simulated transient failure for testing (remaining: {inject_count})",
+                        retries=attempt,
+                        duration_ms=elapsed,
+                    )
+                    self._history.append(result)
+                    last_error = result.errors
+                    if attempt == retries:
+                        return result
+                    await asyncio.sleep(self._backoff_base * (2 ** attempt))
+                    continue
             start = time.monotonic()
             try:
                 raw = await asyncio.wait_for(
