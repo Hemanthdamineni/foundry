@@ -8,10 +8,20 @@
     "foundry": {
       "description": "Foundry workspace-aware SDLC orchestration agent with deterministic bootstrap, validation, tracing, and recovery.",
       "mode": "primary",
+      "temperature": 0.2,
+      "steps": 50,
       "permission": {
         "bash": "ask",
         "edit": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
         "task": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
+        "lsp": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
         "question": "allow"
       },
       "prompt": "{file:foundry/.opencode/agents/foundry.md}"
@@ -27,7 +37,8 @@
       ],
       "enabled": true,
       "environment": {},
-      "type": "local"
+      "type": "local",
+      "timeout": 10000
     }
   }
 }
