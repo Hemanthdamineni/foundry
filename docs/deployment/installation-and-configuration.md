@@ -160,11 +160,11 @@ class Settings(BaseSettings):
 
 | File | Required | Purpose |
 |---|---|---|
-| `configs/model_routing.yaml` | Yes | Per-phase model + subagent assignment |
-| `configs/llm_config.yaml` | No | Provider definitions (falls back to env defaults) |
-| `configs/budget_policy.yaml` | No | Budget profiles (falls back to code defaults) |
-| `configs/prompts/*.txt` | No | Judge prompt templates (uses defaults if missing) |
-| `graphs/feature.yaml` | Yes | Phase graph definition |
+| `sdlc/configs/model_routing.yaml` | Yes | Per-phase model + subagent assignment |
+| `sdlc/configs/llm_config.yaml` | No | Provider definitions (falls back to env defaults) |
+| `sdlc/configs/budget_policy.yaml` | No | Budget profiles (falls back to code defaults) |
+| `sdlc/configs/prompts/*.txt` | No | Judge prompt templates (uses defaults if missing) |
+| `sdlc/graphs/*.yaml` | Yes | Phase graph definitions (6 templates: feature, bugfix, refactor, research, docs, feature_harvesting) |
 
 ---
 
@@ -216,3 +216,27 @@ For shared/team use, production deployment would require:
 6. **Monitoring** — Export metrics to Prometheus/Grafana
 
 **Status:** All conceptual. Not a near-term priority.
+
+---
+
+## CLI Tools
+
+The `sdlc/cli/` directory contains command-line utilities for development and debugging:
+
+### Available Commands
+
+| Command | Module | Purpose |
+|---|---|---|
+| `python -m sdlc.runtime.app` | `runtime/app.py` | Start MCP server (primary entry point) |
+| `python -m sdlc.cli.validate` | `cli/validate.py` | Run validation checks on configs/graphs |
+| `python -m sdlc.cli.index` | `cli/index.py` | Index workspace from CLI |
+| `python -m sdlc.cli.inspect_task` | `cli/inspect_task.py` | Inspect task state from SQLite |
+
+### When to Use CLI vs MCP
+
+| Scenario | Use |
+|---|---|
+| Normal operation | MCP server (host agent calls tools) |
+| Debugging a stuck task | CLI `inspect_task` |
+| Validating config changes | CLI `validate` |
+| Pre-indexing a large workspace | CLI `index` |

@@ -1,3 +1,7 @@
+> Archived brainstorming. This file is non-authoritative and must not be used as
+> an MVP implementation plan. The authoritative baseline is `ARCHITECTURE.md`,
+> `ROADMAP.md`, `TODO.md`, `planning/`, and `planning/execution/`.
+
 No. This is probably your first stable macro-architecture, not the final architecture.
 
 What you now have is:

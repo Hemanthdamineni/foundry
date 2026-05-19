@@ -1,0 +1,1 @@
+{"nodes": [{"id": "prompts_chatting_md_chatting_phase", "label": "SDLC Chatting Phase (intent clarification)", "file_type": "concept", "source_file": ".opencode/skills/sdlc/prompts/chatting.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

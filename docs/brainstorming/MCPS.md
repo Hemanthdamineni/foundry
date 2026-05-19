@@ -1,3 +1,7 @@
+> Archived brainstorming. This file is non-authoritative and must not be used as
+> an MVP implementation plan. The authoritative baseline is `ARCHITECTURE.md`,
+> `ROADMAP.md`, `TODO.md`, `planning/`, and `planning/execution/`.
+
 For MCPs (Model Context Protocol servers/tools), the architecture is different.
 
 Your internal runtime skills are:

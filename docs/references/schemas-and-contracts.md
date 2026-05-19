@@ -1,6 +1,6 @@
 # Schemas and Contracts
 
-> All Pydantic data models, enums, file formats, and serialization contracts.
+> All Pydantic data models, enums, file formats, and serialization contracts — verified against `sdlc/models.py` and `sdlc/exceptions.py`.
 
 ---
 
@@ -10,10 +10,10 @@
 
 ```python
 class TaskStatus(StrEnum):
-    ACTIVE     = "active"
-    COMPLETED  = "completed"
-    STALLED    = "stalled"      # Budget exhausted or irrecoverable failure
-    CANCELLED  = "cancelled"
+    ACTIVE    = "active"
+    CANCELLED = "cancelled"
+    DONE      = "done"
+    STALLED   = "stalled"
 ```
 
 ### PhaseStatus
@@ -22,32 +22,20 @@ class TaskStatus(StrEnum):
 class PhaseStatus(StrEnum):
     PENDING     = "pending"
     IN_PROGRESS = "in_progress"
-    COMPLETED   = "completed"
-    FAILED      = "failed"
+    SUBMITTED   = "submitted"
+    ACCEPTED    = "accepted"
+    REJECTED    = "rejected"
     SKIPPED     = "skipped"
 ```
 
-### SymbolKind
+### DecisionAction
 
 ```python
-class SymbolKind(StrEnum):
-    FUNCTION = "function"
-    METHOD   = "method"
-    CLASS    = "class"
-    VARIABLE = "variable"
-    UNKNOWN  = "unknown"
-```
-
-### DebateAgentRole
-
-```python
-class DebateAgentRole(StrEnum):
-    SPECS     = "specs"
-    PLANNING  = "planning"
-    CODING    = "coding"
-    REVIEW    = "review"
-    TESTING   = "testing"
-    CONSENSUS = "consensus"
+class DecisionAction(StrEnum):
+    PROCEED  = "proceed"
+    RETRY    = "retry"
+    ABORT    = "abort"
+    ESCALATE = "escalate"
 ```
 
 ### FailureType
@@ -65,6 +53,34 @@ class FailureType(StrEnum):
     ORCHESTRATION_CANCELLED = "cancelled"
     ORCHESTRATION_LIMIT   = "limit_reached"
     ORCHESTRATION_GATE    = "gate_blocked"
+```
+
+### SymbolKind
+
+```python
+class SymbolKind(StrEnum):
+    MODULE     = "module"
+    CLASS      = "class"
+    FUNCTION   = "function"
+    METHOD     = "method"
+    VARIABLE   = "variable"
+    CONSTANT   = "constant"
+    IMPORT     = "import"
+    INTERFACE  = "interface"
+    TYPE_ALIAS = "type_alias"
+    UNKNOWN    = "unknown"
+```
+
+### DebateAgentRole
+
+```python
+class DebateAgentRole(StrEnum):
+    SPECS     = "specs"
+    PLANNING  = "planning"
+    CODING    = "coding"
+    REVIEW    = "review"
+    TESTING   = "testing"
+    CONSENSUS = "consensus"
 ```
 
 ### ToolCapability
@@ -93,14 +109,14 @@ class Task(BaseModel):
     mode: str = "feature"
     status: TaskStatus = TaskStatus.ACTIVE
     current_phase: str = "Chatting"
-    iteration_count: int = 0
     history: list[PhaseRecord] = []
+    iteration_count: int = 0
     budget: BudgetPolicy = BudgetPolicy()
-    locked_prompts: dict[str, str] = {}
     snapshot: ExecutionSnapshot | None = None
-    affected_files: list[str] = []
-    created_at: str = ""
-    updated_at: str = ""
+    locked_prompts: dict[str, str] = {}
+    created_at: datetime = _utc_now()
+    updated_at: datetime = _utc_now()
+    requires_approval: bool = False
 ```
 
 ### PhaseRecord
@@ -110,9 +126,34 @@ class PhaseRecord(BaseModel):
     phase: str
     status: PhaseStatus = PhaseStatus.PENDING
     output: str | None = None
-    verdict: str | None = None
+    model_used: str | None = None
     token_estimate: int | None = None
-    created_at: str = ""
+    duration_ms: int | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error: str | None = None
+    lineage: list[dict[str, Any]] | None = None
+    iteration_count: int = 0
+```
+
+### JudgeVerdict
+
+```python
+class JudgeVerdict(BaseModel):
+    passed: bool
+    reason: str
+    issues: list[str] = []
+    severity: str = "info"     # "info" | "warning" | "error" | "critical"
+```
+
+### Decision
+
+```python
+class Decision(BaseModel):
+    action: DecisionAction
+    reason: str
+    retry_after_s: int | None = None
+    failure_type: FailureType | None = None
 ```
 
 ### BudgetPolicy
@@ -134,23 +175,24 @@ class BudgetPolicy(BaseModel):
 class Checkpoint(BaseModel):
     task_id: str
     phase: str
-    history: list[PhaseRecord] = []
-    iteration_count: int = 0
+    history: list[PhaseRecord]
+    iteration_count: int
     adapter_states: dict[str, Any] = {}
+    created_at: datetime = _utc_now()
     snapshot: ExecutionSnapshot | None = None
-    created_at: str = ""
+    debate_active: list[str] = []
 ```
 
 ### ExecutionSnapshot
 
 ```python
 class ExecutionSnapshot(BaseModel):
-    snapshot_id: str = ""
-    created_at: str = ""
-    graph_template: str = ""
-    graph_hash: str = ""
-    prompt_hashes: dict[str, str] = {}
-    model_routing_hash: str = ""
+    snapshot_id: str
+    created_at: datetime
+    graph_template: str
+    graph_hash: str
+    prompt_hashes: dict[str, str]
+    model_routing_hash: str
     judge_schema_hash: str | None = None
     adapter_versions: dict[str, str] = {}
     ollama_models: dict[str, str] = {}
@@ -160,10 +202,10 @@ class ExecutionSnapshot(BaseModel):
 
 ```python
 class WriteOp(BaseModel):
-    target: str          # "task", "phase", "checkpoint", "memory"
-    action: str          # "create", "update", "save"
-    payload: dict[str, Any] = {}
-    source_span: str = ""
+    target: str              # "task", "phase", "checkpoint", "memory"
+    action: str              # "create", "update", "save"
+    payload: dict[str, Any]
+    source_span: str | None = None
 ```
 
 ---
@@ -175,7 +217,7 @@ class WriteOp(BaseModel):
 ```python
 class FileIndex(BaseModel):
     path: str
-    language: str
+    language: str = "unknown"
     symbols: list[CodeSymbol] = []
     imports: list[ImportInfo] = []
     mtime: float = 0.0
@@ -189,12 +231,13 @@ class FileIndex(BaseModel):
 ```python
 class CodeSymbol(BaseModel):
     name: str
-    kind: SymbolKind
-    file_path: str = ""
+    kind: SymbolKind = SymbolKind.UNKNOWN
+    file_path: str
     start_line: int = 0
     end_line: int = 0
     parent: str | None = None
     docstring: str | None = None
+    metadata: dict[str, Any] = {}
 ```
 
 ### ImportInfo
@@ -203,7 +246,7 @@ class CodeSymbol(BaseModel):
 class ImportInfo(BaseModel):
     source: str
     alias: str | None = None
-    file_path: str = ""
+    file_path: str
     line: int = 0
     is_relative: bool = False
 ```
@@ -215,7 +258,7 @@ class DependencyGraph(BaseModel):
     files: dict[str, FileIndex] = {}
     import_edges: dict[str, list[str]] = {}
     dependents: dict[str, list[str]] = {}
-    indexed_at: str | None = None
+    indexed_at: str = ""
     file_count: int = 0
     symbol_count: int = 0
 ```
@@ -224,9 +267,9 @@ class DependencyGraph(BaseModel):
 
 ```python
 class ContextChunk(BaseModel):
-    file_path: str = ""
-    language: str = ""
-    content: str = ""
+    file_path: str
+    language: str = "unknown"
+    content: str
     start_line: int = 0
     end_line: int = 0
     symbol_name: str | None = None
@@ -241,8 +284,12 @@ class IndexConfig(BaseModel):
     enabled: bool = True
     max_files: int = 5000
     max_file_size_kb: int = 512
-    include_patterns: list[str] = ["*.py", "*.js", ...]
-    exclude_patterns: list[str] = ["*.pyc", ".git/*", ...]
+    include_patterns: list[str] = ["*.py", "*.js", "*.ts", "*.jsx", "*.tsx",
+                                    "*.rs", "*.go", "*.java", "*.yaml", "*.yml",
+                                    "*.json", "*.md"]
+    exclude_patterns: list[str] = ["*.pyc", "__pycache__/*", ".git/*",
+                                    "node_modules/*", ".pixi/*", ".venv/*",
+                                    "data/*", ".opencode/*"]
     incremental: bool = True
     chunk_size_lines: int = 50
     context_file_count: int = 10
@@ -253,14 +300,38 @@ class IndexConfig(BaseModel):
 
 ## Debate Models
 
+### DebateAgentConfig
+
+```python
+class DebateAgentConfig(BaseModel):
+    role: DebateAgentRole
+    model: str = "qwen3:8b"
+    system_prompt: str = ""
+    temperature: float = 0.7
+    max_tokens: int = 1024
+```
+
+### DebateRound
+
+```python
+class DebateRound(BaseModel):
+    round_number: int
+    responses: dict[str, str] = {}
+    previous_responses: dict[str, str] = {}
+    started_at: str = ""
+    completed_at: str = ""
+```
+
 ### DebateTranscript
 
 ```python
 class DebateTranscript(BaseModel):
-    rounds: list[dict[str, str]] = []   # [{agent_role: response}, ...]
-    final_verdict: str = ""
-    agent_configs: list[dict] = []
-    total_rounds: int = 0
+    task_id: str
+    phase: str
+    output_preview: str = ""
+    rounds: list[DebateRound] = []
+    consensus: ConsensusResult | None = None
+    total_tokens_estimate: int = 0
 ```
 
 ### ConsensusResult
@@ -273,47 +344,62 @@ class ConsensusResult(BaseModel):
     disagreement_areas: list[str] = []
     round_count: int = 0
     agent_verdicts: dict[str, bool] = {}
-    minority_reports: list[dict] = []
-    collapse_signal: dict = {}
+    minority_reports: list[MinorityReport] = []
+    collapse_signal: CollapseSignal = CollapseSignal()
     residual_objections: list[str] = []
 ```
 
----
+### MinorityReport
 
-## File Formats
-
-### JSONL Trace File (`data/traces/{id}.jsonl`)
-
-```json
-{"span_id": "abc", "phase": "Coding", "tool": "submit_output", "input": {...}, "output": {...}, "timestamp": "...", "duration_ms": 1234}
-{"span_id": "def", "phase": "Testing", "tool": "get_next_action", "input": {...}, "output": {...}, "timestamp": "...", "duration_ms": 567}
+```python
+class MinorityReport(BaseModel):
+    agent_role: str
+    objection: str
+    round_number: int
+    severity: str = "info"
 ```
 
-### JSONL Engram File (`data/memory/engrams.jsonl`)
+### CollapseSignal
 
-```json
-{"content": "ImportError in auth module", "tags": ["error", "import", "auth"], "task_id": "abc123", "phase": "Coding", "timestamp": "..."}
+```python
+class CollapseSignal(BaseModel):
+    detected: bool = False
+    confidence: float = 0.0
+    reason: str = ""
 ```
 
-### Checkpoint File (`data/checkpoints/{task_id}_v{N}.json`)
+### Engram
 
-```json
-{"task_id": "abc123", "phase": "Planning", "history": [...], "iteration_count": 2, "snapshot": {...}, "created_at": "..."}
+```python
+class Engram(BaseModel):
+    engram_id: str
+    task_id: str
+    phase: str
+    content: str
+    tags: list[str] = []
+    source: str = "unknown"
+    importance: float = 0.5
+    created_at: str = ""
+    metadata: dict[str, Any] = {}
 ```
 
 ---
 
 ## Exception Hierarchy
 
+Source: `sdlc/exceptions.py`
+
 ```python
-class SDLCError(Exception): ...                        # Base
-class ConfigError(SDLCError): ...                       # Configuration problems
-class PhaseError(SDLCError): ...                        # Phase transition failures
-class ValidationError(SDLCError): ...                   # Output validation failures
-class BudgetExhaustedError(SDLCError): ...              # Budget ceiling hit
-class CheckpointError(SDLCError): ...                   # Checkpoint save/restore failures
-class StoreError(SDLCError): ...                        # Database failures
-class RecoveryError(SDLCError): ...                     # Recovery escalation failures
-class DriftError(SDLCError): ...                        # Architectural drift detected
-class ToolError(SDLCError): ...                         # External tool failures
+class SDLCError(Exception):            # Base — accepts failure_type: str, details: dict
+class ConfigError(SDLCError): ...      # Configuration loading or validation
+class StoreError(SDLCError): ...       # Persistence layer
+class PhaseError(SDLCError): ...       # Phase transition or validation
+class ToolError(SDLCError): ...        # Tool adapter execution
+class PolicyError(SDLCError): ...      # Execution policy decisions
+class CheckpointError(SDLCError): ...  # Checkpoint save/restore
+class SandboxError(SDLCError): ...     # Sandbox execution isolation
+class DebateError(SDLCError): ...      # Debate runtime or consensus
+class JudgeError(SDLCError): ...       # Judge evaluation
+class ModelError(SDLCError): ...       # Model routing or inference
+class CodeGraphError(SDLCError): ...   # Code graph / AST parsing
 ```

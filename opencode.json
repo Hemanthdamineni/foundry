@@ -13,10 +13,12 @@
         "edit": "allow",
         "task": "allow"
       },
-      "prompt": "{file:.opencode/skills/foundry/SKILL.md}"
+      "prompt": "{file:foundry/.opencode/agents/foundry.md}"
     }
   },
-  "instructions": [],
+  "instructions": [
+    "When using the foundry agent, ALWAYS use the `question` tool during the Chatting phase to gather user preferences via GUI options. NEVER skip clarification questions. Present 3-4 concrete options with 'Type your own answer' allowed."
+  ],
   "mcp": {
     "foundry-orchestrator": {
       "command": [

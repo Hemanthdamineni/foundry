@@ -1,115 +1,106 @@
 # Foundry Roadmap
 
-> Priority: make `build` work end-to-end reliably. Everything else follows.
+> Priority: make one feature workflow execute deterministically, validate code
+> authoritatively, persist state, and recover.
 
----
+This roadmap follows the adversarial audit baseline. It tracks runtime
+integration, not module existence.
 
-## Phase 1: End-to-End Build Loop (NOW)
-
-**Goal:** A user says "build X" and Foundry autonomously delivers working, validated code.
+## Authoritative Runtime Path
 
 ```
-requirements → planning → implementation → validation → retries → recovery → working output
+User Workflow
+  -> submit_output
+  -> ToolExecutor
+  -> ToolGate
+  -> validation
+  -> checkpoint
+  -> persistence
+  -> sdlc_resume_task / recovery
 ```
 
-| Task | Module | Status |
-|---|---|---|
-| Wire SDLC loop end-to-end | `engine/orchestrator.py` + `engine/phase_graph.py` | Modules exist, needs integration |
-| Connect tool gates after coding | `runtime/tool_gate.py` | Module exists, needs wiring |
-| Checkpoint after each phase transition | `runtime/enhanced_checkpoint.py` | Module exists, needs wiring |
-| Recovery from crash → restore from checkpoint | `engine/recovery_engine.py` | Module exists, needs wiring |
-| Budget enforcement (stop runaway execution) | `runtime/budget_controller.py` | Module exists, needs wiring |
-| MCP server serves tools to host agent | `runtime/app.py` | Working |
-| Foundry installer bundles Python runtime | `foundry/install/install.js` | Needs update |
+## Phase 0: Baseline Truth
 
-**Success criteria:** Given a natural language requirement, Foundry produces code that passes lint, types, and tests — autonomously, with no human intervention during execution.
+**Goal:** Remove false readiness claims.
 
----
-
-## Phase 2: Reliability (SOON)
-
-**Goal:** The build loop handles failures gracefully without human rescue.
-
-| Task | Module |
+| Task | Status |
 |---|---|
-| Retry escalation on failures | `engine/retry_policy.py` |
-| Replanning when stuck | `engine/replanner.py` |
-| Rollback to last-green on unrecoverable | `runtime/rollback_manager.py` |
-| State persistence across sessions | `runtime/state_manager.py` + SQLite |
-| GitHub adapter (create PRs, respond to reviews) | New: `adapters/github.py` |
-| Review debate integration | `engine/reviewer_debate.py` |
+| Reclassify subsystems by operational integration | Done in `planning/` |
+| Define corrected MVP boundary | Done in `planning/` |
+| Defer replay, rollback, memory, dashboards, extra workflows | Done in `planning/` |
 
-**Success criteria:** Foundry recovers from tool failures, model errors, and test regressions without human intervention. Execution is resumable after crashes.
+## Phase 1: Single Submit Pipeline
 
----
+**Goal:** `submit_output` becomes the only phase-transition authority.
 
-## Phase 3: Reasoning Quality (LATER)
-
-**Goal:** Improve the quality of generated code through structured reasoning.
-
-| Task | Module |
+| Task | Status |
 |---|---|
-| Confidence gating (reject low-quality outputs) | `engine/confidence_gate.py` |
-| Judge hierarchy during review | `engine/judge_hierarchy.py` |
-| Context harvesting for smarter prompts | `engine/context_harvester.py` |
-| Error memory (learn from past failures) | `runtime/memory_store.py` |
-| Drift detection (catch specification drift) | `engine/drift_detector.py` |
+| Explicit submit stages: phase match, budget, schema, judge, gate, transition, checkpoint | Not done |
+| Persist accepted and rejected attempts | Partially wired |
+| Keep rejected attempts in current phase | Partially wired |
+| Guard or disable Chatting -> Done shortcut for normal feature tasks | Not done |
+| Reject unsupported workflow modes or wire graph selection | Not done |
 
-**Success criteria:** Code quality improves measurably. Fewer retry cycles. Debates catch real issues.
+## Phase 2: Tool Validation Authority
 
----
+**Goal:** Coding/Testing cannot advance without tool validation.
 
-## Phase 4: Scalability (FUTURE)
-
-**Goal:** Handle larger projects, multiple repos, and longer autonomous runs.
-
-| Task | Module |
+| Task | Status |
 |---|---|
-| Tool gateway with MCP routing/fallback | New: `runtime/tool_gateway.py` |
-| Observability dashboard | `runtime/dashboard.py` + `runtime/tracing.py` |
-| Prompt registry (versioned, replay-safe) | `engine/prompt_registry.py` |
-| Multi-project support | New architecture work |
-| Docker-sandboxed execution | MCP integration |
+| Initialize ToolExecutor in app lifespan | Done |
+| Register MVP adapters: lint, types, tests | Done |
+| Initialize ToolGate with MVP gate order | Done |
+| Call ToolExecutor + ToolGate from submit flow | Done |
+| Standardize ToolExecutor payload and ToolGate result mapping | Done |
+| Fail/unsupported missing Mypy explicitly | Done |
+| Persist validation result with phase output | Done |
 
----
+## Phase 3: Checkpoint Restore and Bounded Recovery
 
-## Deferred Indefinitely
+**Goal:** Accepted progress survives restart and transient failures are bounded.
 
-These are expansion points, not requirements:
-
-| Category | Reason to defer |
+| Task | Status |
 |---|---|
-| Distributed execution | No multi-node scenario exists |
-| Chaos/simulation testing | System must work first |
-| Compliance/governance frameworks | No enterprise customers |
-| Learning/adaptation engines | Premature optimization |
-| 30+ memory/validator/security types | Methods on existing modules suffice |
-| Enterprise integrations (Jira, Slack, etc.) | Only if users request |
+| Explicit `sdlc_resume_task` latest-checkpoint restore/resume | Done |
+| Persist retry count and last failure reason | Done |
+| Retry transient tool/model failures within ceiling | Done |
+| Treat adapter absence/checkpoint mismatch as terminal, not transient | Done |
+| Mark exhausted tasks stalled or terminal without advancing | Done |
+| Restart/resume integration test | Done |
 
----
+## Phase 4: MVP Feature Workflow
 
-## MCP Integration Timeline
+**Goal:** One complete feature workflow is operational.
 
-| Tier | MCPs | When |
-|---|---|---|
-| **Tier 1 (Now)** | filesystem, shell, git | Available via host agent tools |
-| **Tier 2 (Phase 1)** | github, docker | PR workflows + sandboxed execution |
-| **Tier 3 (Phase 3+)** | postgres, playwright/browser | Persistent memory + research |
-| **Tier 4 (Phase 4+)** | qdrant, brave-search | Semantic retrieval |
-| **Tier 5 (On-demand)** | jira, linear, slack, terraform | Enterprise requests only |
+Success criteria — all met:
 
----
+1. Feature task reaches Done through `submit_output`. — `TestFeatureWorkflowE2E`
+2. Coding/Testing fail when ToolGate fails. — `TestToolGates` (ruff, mypy, pytest)
+3. Coding/Testing advance when ToolGate passes. — `TestToolGates.test_successful_validation_allows_advancement`
+4. Rejected attempts are persisted. — `TestSchemaValidation` tests + history assertions
+5. Checkpoints are written after accepted transitions. — `TestFeatureWorkflowE2E` (verified every phase)
+6. Restart resumes latest accepted state. — `TestRestartResume` (P3-04)
+7. Retry exhaustion cannot loop forever. — `TestBoundedTransientRetry` (P3-03)
+8. `Chatting -> Done` cannot silently skip feature phases. — `TestTaskLifecycle.test_chatting_to_done_shortcut_rejected`
+9. Missing Mypy cannot silently pass the types gate. — ToolExecutor returns `not_found` for missing binary
 
-## Architecture Validation Criteria
+## Deferred Until After MVP
 
-The architecture is validated when this sequence works autonomously:
+| Deferred Area | Reason |
+|---|---|
+| Distributed execution | No current need; adds coordination failure modes |
+| Advanced memory | Not required for deterministic execution correctness |
+| Dashboards | Observability UI is not validation authority |
+| Multi-agent/team systems | Centralized orchestration is the target |
+| Autonomous controllers | Premature before bounded submit/recovery works |
+| Advanced replay | Requires captured prompts, model outputs, tool outputs, decisions, and filesystem state |
+| Rollback | Current implementation is not operational git/checkpoint restore |
+| Confidence analytics | Quality enhancement, not runtime correctness |
+| Enterprise integrations | Do not improve MVP loop |
+| Non-feature workflows | Graph existence is not workflow support |
 
-1. User provides natural language requirements
-2. Foundry generates a specification (SPEC phase)
-3. Foundry decomposes into a dependency-ordered plan (PLAN phase)
-4. Foundry implements each task via subagent prompts (CODE phase)
-5. Tool gates validate: lint → types → tests → coverage (TEST phase)
-6. If validation fails: retry with escalation, then replan, then rollback
-7. If validation passes: structured review debate (REVIEW phase)
-8. Output: working implementation + completion report (DONE)
-9. All of this is checkpoint-recoverable and budget-bounded
+## Readiness Rule
+
+A subsystem is implemented only when it is initialized by runtime, called by the
+authoritative execution path, can affect acceptance/rejection, persists required
+state, and has integration tests for success and failure.

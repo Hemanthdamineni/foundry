@@ -1,154 +1,127 @@
 # State Machines
 
-> Mermaid diagrams for all finite state machines in the Foundry runtime.
+This file is the MVP state-machine reference. It intentionally excludes
+post-MVP replay, rollback, multi-workflow, and debate-state diagrams.
 
----
-
-## Task Lifecycle FSM
+## Task Lifecycle
 
 ```mermaid
 stateDiagram-v2
     [*] --> active : sdlc_create_task
-    active --> active : submit_output (rejected → retry)
-    active --> completed : submit_output (final phase accepted)
-    active --> stalled : budget exhausted
-    active --> cancelled : sdlc_cancel_task
-    completed --> [*]
+    active --> active : submit_output rejected
+    active --> done : Done accepted
+    active --> stalled : budget/retry ceiling or unrecoverable failure
+    active --> cancelled : explicit cancel
+    done --> [*]
     stalled --> [*]
     cancelled --> [*]
 ```
 
-### States
-
 | State | Meaning | Terminal |
 |---|---|---|
-| `active` | Task is executing, phases being processed | No |
-| `completed` | All phases passed, task reached Done | Yes |
-| `stalled` | Budget exhausted or irrecoverable failure | Yes |
-| `cancelled` | User explicitly cancelled | Yes |
+| `active` | Task can accept submissions for its current phase | No |
+| `done` | Feature workflow reached accepted Done | Yes |
+| `stalled` | Runtime cannot proceed without user intervention | Yes |
+| `cancelled` | User cancelled the task | Yes |
 
-### Transitions
+## Feature Phase FSM
 
-| From | To | Trigger |
-|---|---|---|
-| `[init]` | `active` | `sdlc_create_task` |
-| `active` | `active` | `submit_output` rejected (stays in same phase) |
-| `active` | `completed` | `submit_output` accepted AND next phase is Done |
-| `active` | `stalled` | Budget ceiling hit (critical violation) |
-| `active` | `cancelled` | `sdlc_cancel_task` |
-
----
-
-## Phase Transition FSM (Feature Workflow)
+MVP supports one workflow:
 
 ```mermaid
 stateDiagram-v2
     [*] --> Chatting
-    Chatting --> Specs : output accepted
-    Specs --> Planning : output accepted
-    Planning --> Coding : output accepted
-    Coding --> Testing : output accepted
-    Testing --> Coding : test failures (back-edge)
-    Testing --> Review : output accepted
-    Review --> Coding : review rejections (back-edge)
-    Review --> Done : output accepted
+    Chatting --> Specs : accepted
+    Specs --> Planning : accepted
+    Planning --> Coding : accepted
+    Coding --> Review : ToolGate accepted
+    Review --> Coding : review rejected
+    Review --> Testing : accepted
+    Testing --> Done : ToolGate accepted
     Done --> [*]
 ```
 
-### Phase Graph Properties
+The source graph may contain `Chatting -> Done`. For MVP this edge is not a
+normal feature-task path. It must be disabled for normal feature work or guarded
+by an explicit early-completion decision that is persisted and tested.
 
-| Property | Value |
-|---|---|
-| Entry phase | Chatting |
-| Terminal phase | Done |
-| Back-edges | Testing→Coding, Review→Coding |
-| Minimum path | 7 transitions (no retries) |
-| Maximum path | Unbounded (limited by budget) |
+Other YAML graph templates are not MVP execution paths.
 
-### Phase Validation Rules
-
-1. All transitions must be explicitly defined in the graph
-2. Every phase must be reachable from the entry phase
-3. Done must have no outgoing edges
-4. No self-loops (a phase cannot transition to itself)
-5. Back-edges must target an earlier phase (not a later one)
-
----
-
-## Recovery Escalation FSM
+## Submit Pipeline FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LOCAL_RETRY : retryable failure
-    LOCAL_RETRY --> LOCAL_RETRY : retry succeeds → [*]
-    LOCAL_RETRY --> LOCAL_REPLAN : retries exhausted
-    LOCAL_REPLAN --> LOCAL_REPLAN : replan succeeds → [*]
-    LOCAL_REPLAN --> PHASE_RETRY : replans exhausted
-    PHASE_RETRY --> PHASE_RETRY : phase retry succeeds → [*]
-    PHASE_RETRY --> STRUCTURAL_REPLAN : phase retries exhausted
-    STRUCTURAL_REPLAN --> STRUCTURAL_REPLAN : replan succeeds → [*]
-    STRUCTURAL_REPLAN --> FULL_RECOVERY : replan fails
-    FULL_RECOVERY --> FULL_RECOVERY : recovery succeeds → [*]
-    FULL_RECOVERY --> ABORT : recovery fails
-    ABORT --> [*]
+    [*] --> LoadTask
+    LoadTask --> Reject : missing/inactive task
+    LoadTask --> CheckPhase
+    CheckPhase --> Reject : phase mismatch
+    CheckPhase --> CheckSchema
+    CheckSchema --> Reject : invalid output
+    CheckSchema --> OptionalJudge
+    OptionalJudge --> Reject : judge/debate rejected
+    OptionalJudge --> ToolGateCheck : Coding or Testing
+    OptionalJudge --> PersistAccepted : other phase
+    ToolGateCheck --> Reject : gate failed
+    ToolGateCheck --> PersistAccepted : gate passed
+    PersistAccepted --> WriteCheckpoint
+    WriteCheckpoint --> Done
+    Reject --> Done
+    Done --> [*]
 ```
 
-### Escalation Counters
+Rejected attempts may be recorded, but rejected attempts do not advance phase or
+write accepted checkpoints.
 
-| Level | Counter | Default Max | Reset On |
-|---|---|---|---|
-| LOCAL_RETRY | Per-phase retry count | 3 | Phase reset |
-| LOCAL_REPLAN | Per-phase replan count | 2 | Phase reset |
-| PHASE_RETRY | Per-phase phase-retry count | 1 | Never (consumed) |
-| STRUCTURAL_REPLAN | Per-task replan count | 1 | Never |
-| FULL_RECOVERY | Per-task recovery count | 1 | Never |
-
----
-
-## Debate Protocol FSM
+## ToolGate FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> ROUND_1 : judge rejected, debate configured
-    ROUND_1 --> ROUND_2 : round complete, budget remaining
-    ROUND_1 --> CONSENSUS : budget exhausted
-    ROUND_2 --> ROUND_3 : round complete, budget remaining
-    ROUND_2 --> CONSENSUS : budget exhausted
-    ROUND_3 --> CONSENSUS : round complete
-    CONSENSUS --> ACCEPTED : consensus passed
-    CONSENSUS --> REJECTED : consensus failed
-    ACCEPTED --> [*]
-    REJECTED --> [*]
+    [*] --> Lint
+    Lint --> Types : passed
+    Lint --> Failed : failed
+    Types --> Tests : passed
+    Types --> Failed : failed or unsupported
+    Tests --> Passed : passed
+    Tests --> Failed : failed
+    Passed --> [*]
+    Failed --> [*]
 ```
 
-### Round Protocol
+The ToolExecutor runs commands. ToolGate evaluates normalized command results.
 
-| Round | Context Available | Purpose |
-|---|---|---|
-| ROUND_1 | Phase output only | Independent assessment |
-| ROUND_2 | + All Round 1 responses | Deliberation |
-| ROUND_3 | + All Round 2 responses | Final positions |
-| CONSENSUS | All rounds | Verdict synthesis |
+## Recovery/Resume FSM
 
----
+```mermaid
+stateDiagram-v2
+    [*] --> Requested : sdlc_resume_task(task_id)
+    Requested --> LoadSQLite
+    LoadSQLite --> LoadCheckpoint
+    LoadCheckpoint --> NotRecoverable : missing checkpoint
+    LoadCheckpoint --> Failed : corrupt checkpoint
+    LoadCheckpoint --> Mismatch : checkpoint/SQLite disagreement
+    LoadCheckpoint --> Resumed : compatible latest checkpoint
+    Mismatch --> Failed : no silent overwrite
+    Resumed --> [*]
+    NotRecoverable --> [*]
+    Failed --> [*]
+```
+
+MVP recovery restores or confirms the latest accepted state. It does not perform
+advanced replay, version-chain selection, git rollback, structural replanning,
+or workspace snapshot restoration.
 
 ## Write Queue FSM
 
 ```mermaid
 stateDiagram-v2
-    [*] --> IDLE : initialized
-    IDLE --> PROCESSING : WriteOp enqueued
-    PROCESSING --> PROCESSING : more ops in queue
-    PROCESSING --> IDLE : queue empty
-    IDLE --> SHUTDOWN : shutdown requested
-    PROCESSING --> DRAINING : shutdown requested
-    DRAINING --> SHUTDOWN : queue drained
-    SHUTDOWN --> [*]
+    [*] --> Idle
+    Idle --> Processing : write enqueued
+    Processing --> Processing : more writes
+    Processing --> Idle : queue empty
+    Processing --> Draining : shutdown requested
+    Draining --> Shutdown : queue drained
+    Shutdown --> [*]
 ```
 
-### Queue Guarantees
-
-1. **FIFO ordering** — operations processed in submission order
-2. **At-least-once** — operations are retried on handler failure
-3. **Graceful shutdown** — DRAINING processes remaining operations before stopping
-4. **No loss** — operations in the queue at shutdown are processed
+The write queue preserves accepted-state write ordering. It is not a distributed
+queue and does not imply parallel workflow execution.

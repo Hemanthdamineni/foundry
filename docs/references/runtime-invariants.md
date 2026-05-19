@@ -1,154 +1,154 @@
 # Runtime Invariants
 
-> The 10 non-negotiable properties that every subsystem must respect, with enforcement mechanisms and violation consequences.
-
----
-
-## Invariant Reference
-
-### I1: Disk Is Truth
-
-> Persistent state files are canonical. In-memory state is derived from disk state.
-
-**Enforcement:** `StateManager` uses `tmp+rename` for atomic writes. `SqliteStore` uses `BEGIN IMMEDIATE`. On startup, all state is loaded from disk — in-memory structures are never authoritative.
-
-**Violation consequence:** State corruption. Task progress lost. Checkpoint chain broken.
-
-**How to verify:** Kill the server process mid-execution. Restart. Verify that the last completed phase is recoverable.
-
----
-
-### I2: Validation-First
-
-> Tool gates are authoritative. Schema checks are deterministic preconditions.
-
-**Enforcement:** `SchemaChecks` run before `JudgeEngine`. Schema violations produce `TERMINAL_VALIDATION` failures — no retry, no debate.
-
-**Violation consequence:** Structurally invalid output advances to downstream phases, causing cascading failures.
-
-**How to verify:** Submit output missing a required section (e.g., `## Requirements` for Specs). Confirm it is rejected with a terminal error.
-
----
-
-### I3: Budget Ceilings Are Absolute
-
-> When a budget ceiling is hit, the task is aborted. No override.
-
-**Enforcement:** `BudgetController.should_continue()` checked before every phase transition. `critical` violations set `status=stalled`.
-
-**Violation consequence:** Runaway execution consuming unbounded tokens/time.
-
-**How to verify:** Set `max_review_cycles=1`. Submit a failing output. Confirm the task is aborted after 1 rejection.
-
----
-
-### I4: Phase Transitions Are Validated
-
-> The FSM rejects invalid transitions.
-
-**Enforcement:** `PhaseGraph` validates structure at construction. `OrchestratorFSM.submit()` verifies the transition exists in the graph. `OrchestratorAuthority` can block specific transitions.
-
-**Violation consequence:** Tasks skip phases (e.g., Specs→Done), producing incomplete deliverables.
-
-**How to verify:** Attempt to submit output claiming a transition not in the graph. Confirm rejection.
-
----
-
-### I5: Rollback Never Corrupts Stable Phases
-
-> Completed, stable-marked phases are sacred.
-
-**Enforcement:** `RollbackManager.plan_rollback()` computes file overlap between rollback target and stable phases. If overlap exists, rollback is refused.
-
-**Violation consequence:** Stable, validated work is destroyed by a rollback targeting a later phase.
-
-**How to verify:** Mark Specs as stable. Attempt rollback from Coding to Chatting. Confirm refused.
-
----
-
-### I6: Checkpoint-Recoverable
-
-> Every phase transition produces a checkpoint. Crashes are recoverable.
-
-**Enforcement:** `WriteQueue` triggers checkpoint creation on every accepted submission. `EnhancedCheckpointManager` creates versioned files with atomic writes.
-
-**Violation consequence:** Server crash loses all progress since the last checkpoint.
-
-**How to verify:** Complete 3 phases. Kill the server. Restore from checkpoint. Verify phase 3 state is intact.
-
----
-
-### I7: Single Orchestrator
-
-> One agent, internal behavioral modes via prompts. Not a swarm.
-
-**Enforcement:** All execution flows through `tools/phase.py`. The `engine/` layer provides policies, not independent agents. Debate agents are LLM calls, not processes.
-
-**Violation consequence:** Coordination complexity, state synchronization bugs, unpredictable recovery.
-
-**How to verify:** Audit the codebase for any module that independently advances phases. There should be none.
-
----
-
-### I8: Prompts Are Locked Per Task
-
-> Prompt content hashes are frozen at task creation.
-
-**Enforcement:** `Task.locked_prompts` populated at creation. `JudgeEngine` uses locked prompts when available. `ExecutionSnapshot.prompt_hashes` records content hashes.
-
-**Violation consequence:** Same task produces different results on replay. Debugging becomes impossible.
-
-**How to verify:** Create a task. Edit a judge prompt on disk. Verify the running task still uses the original prompt.
-
----
-
-### I9: State Writes Are Atomic
-
-> No state file write can produce a partially-written file.
-
-**Enforcement:** All persistence uses `tmp+rename` (POSIX atomic) or `BEGIN IMMEDIATE` + `COMMIT`/`ROLLBACK` (SQLite).
-
-**Violation consequence:** Half-written JSON files crash deserialization. Database corruption.
-
-**How to verify:** Monitor write operations. Confirm all file writes go through a temporary file first.
-
----
-
-### I10: Authority Is Centralized
-
-> No component may advance phases without orchestrator approval.
-
-**Enforcement:** `OrchestratorAuthority.request_authority()` is the single decision point. Decision log records every approval/rejection.
-
-**Violation consequence:** Components independently advancing state produce conflicts and audit gaps.
-
-**How to verify:** Search codebase for direct state mutations outside the authority system. There should be none in production code.
-
----
-
-## Invariant Dependency Graph
-
-```
-I1 (Disk Is Truth)
-    └── enables I6 (Checkpoint-Recoverable)
-        └── enables I5 (Rollback Never Corrupts)
-
-I2 (Validation-First)
-    └── enables I4 (Transitions Validated)
-
-I3 (Budget Ceilings)
-    └── independent (enforced at every check point)
-
-I7 (Single Orchestrator)
-    └── enables I10 (Centralized Authority)
-        └── enables I4 (Transitions Validated)
-
-I8 (Prompts Locked)
-    └── independent (enforced at task creation)
-
-I9 (Atomic Writes)
-    └── enables I1 (Disk Is Truth)
-        └── enables I6 (Checkpoint-Recoverable)
+This reference is MVP-scoped. It describes the invariants required for the
+first operational Foundry runtime, not the larger deferred architecture.
+
+Authoritative execution path:
+
+```text
+User Workflow
+  -> submit_output
+  -> ToolExecutor
+  -> ToolGate
+  -> validation
+  -> checkpoint
+  -> SQLite persistence
+  -> recovery/resume
 ```
 
-**Root invariants:** I9 (Atomic Writes) and I7 (Single Orchestrator) are foundational. Most other invariants depend on these two.
+## I1: SQLite Is Task Authority
+
+Task status, current phase, phase history, accepted outputs, retry counters, and
+checkpoint metadata are authoritative only when persisted through `SqliteStore`
+and the write queue.
+
+`StateManager` files, checkpoint files, traces, and in-memory objects are not
+competing authorities for MVP.
+
+Verification: restart the runtime and confirm task state is reconstructed from
+SQLite, with checkpoint files used only for explicit recovery/reconciliation.
+
+## I2: One Feature FSM
+
+MVP execution uses only the `feature` workflow:
+
+```text
+Chatting -> Specs -> Planning -> Coding -> Review -> Testing -> Done
+```
+
+The existing `Chatting -> Done` edge is not a normal feature-task shortcut. It
+must either be disabled for normal feature runs or accepted only by an explicit
+early-completion policy that records why the task did not need the full graph.
+
+Verification: a normal feature task cannot skip Specs, Planning, Coding, Review,
+or Testing through accidental phase selection.
+
+## I3: Submit Is The Only Phase-Mutation Path
+
+No subsystem may advance a task phase except the authoritative submit pipeline.
+Validators, tool adapters, checkpoints, and recovery helpers may report facts;
+they do not decide accepted phase transitions independently.
+
+Verification: search for direct phase writes outside `submit_output` and its
+single persistence helper path.
+
+## I4: Validation Precedes State Mutation
+
+Accepted phase changes happen only after deterministic checks pass:
+
+1. task exists and is active;
+2. submitted phase matches current phase;
+3. FSM transition is valid;
+4. required schema/phase checks pass;
+5. judge/debate checks pass where configured;
+6. Coding/Testing ToolGate passes;
+7. accepted output, next phase, history, and checkpoint metadata persist.
+
+Rejected submissions may persist rejection history, but must not persist accepted
+phase advancement or accepted checkpoint state.
+
+## I5: ToolExecutor Owns Command Execution
+
+Coding and Testing validation commands run through one runtime-owned
+`ToolExecutor`. The submit pipeline must not shell out around it.
+
+MVP adapter payload:
+
+```python
+{
+    "task_id": task_id,
+    "phase": phase,
+    "path": workspace_path,
+    "timeout_s": 30,
+}
+```
+
+`path` is the workspace root for MVP. Changed-file targeting is post-MVP.
+
+## I6: ToolGate Owns Code-Phase Acceptance
+
+For Coding and Testing, the deterministic MVP gate order is:
+
+```text
+lint -> types -> tests
+```
+
+Gate mapping:
+
+| Gate | Adapter |
+|---|---|
+| `lint` | Ruff |
+| `types` | Mypy |
+| `tests` | Pytest |
+
+Mypy is required if registered and healthy. If unavailable in local test/dev
+environments, the runtime must return an explicit unsupported or failed gate
+result. Silent pass is forbidden.
+
+## I7: Checkpoints Are Recovery Inputs, Not Task Authority
+
+Accepted submissions write a latest checkpoint after validation succeeds.
+Checkpoint restore is explicit and bounded:
+
+- normal reads use SQLite;
+- `sdlc_resume_task(task_id)` may reconcile/restore from the latest checkpoint;
+- missing checkpoint returns an explicit not-recoverable result;
+- corrupt checkpoint returns an explicit recovery failure;
+- SQLite/checkpoint mismatch is reported, not silently overwritten.
+
+Versioned checkpoint chains, rollback, and deterministic replay are deferred.
+
+## I8: Retry Is Bounded And Narrow
+
+Retries are allowed only for transient runtime failures such as timeout,
+adapter process error, temporary unavailable tool, or interrupted persistence.
+
+Validation failures from user output, lint/type/test failures, schema failures,
+phase mismatches, budget exhaustion, and checkpoint corruption are terminal for
+that submission. Retrying them without new user/model output would only hide the
+real failure.
+
+## I9: Writes Are Ordered And Atomic
+
+All task, phase-output, rejection, and checkpoint metadata writes must go through
+the write queue and SQLite transaction boundaries. A crash may lose an
+unaccepted attempt, but it must not create a half-advanced accepted phase.
+
+Verification: crash after validation but before checkpoint write and confirm the
+task resumes from the last fully accepted persisted state.
+
+## I10: Deferred Systems Cannot Be Runtime Dependencies
+
+MVP must not require:
+
+- distributed execution;
+- advanced replay;
+- git rollback;
+- dashboards;
+- vector/advanced memory;
+- multi-agent coordination;
+- autonomous controllers;
+- enterprise integrations.
+
+Files for these concepts may exist, but they are non-operational unless wired
+into the authoritative runtime path and covered by integration tests.
