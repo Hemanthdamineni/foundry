@@ -1,0 +1,17 @@
+[project]
+name = "sdlc-store"
+version = "0.1.0"
+description = "Persistence layer for SDLC phase graphs and task states"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.0.0", "sdlc-models"]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sdlc_store*"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0", "pytest-asyncio>=0.24.0", "ruff>=0.9.0"]

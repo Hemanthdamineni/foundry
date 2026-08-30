@@ -1,0 +1,4 @@
+max_iterations: 8
+max_debate_rounds: 3
+max_retries: 2
+max_cost: 0

@@ -1,0 +1,14 @@
+phases:
+  Chatting:
+    - Done
+    - Specs
+  Specs:
+    - Planning
+  Planning:
+    - Coding
+  Coding:
+    - Review
+  Review:
+    - Coding
+    - Done
+  Done: []

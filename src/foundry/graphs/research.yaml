@@ -1,0 +1,18 @@
+phases:
+  - Chatting
+  - Specs
+  - Planning
+  - Review
+  - Done
+
+transitions:
+  - from: Chatting
+    to: Specs
+  - from: Chatting
+    to: Done
+  - from: Specs
+    to: Planning
+  - from: Planning
+    to: Review
+  - from: Review
+    to: Done

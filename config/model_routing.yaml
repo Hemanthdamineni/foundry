@@ -1,0 +1,19 @@
+phases:
+  ContextHarvesting:
+    model: qwen3:8b
+    temperature: 0.7
+  Specs:
+    model: qwen3:8b
+    temperature: 0.3
+  Planning:
+    model: qwen3:8b
+    temperature: 0.3
+  Coding:
+    model: qwen3:8b
+    temperature: 0.2
+  Review:
+    model: qwen3:8b
+    temperature: 0.5
+  Testing:
+    model: qwen3:8b
+    temperature: 0.3

@@ -1,0 +1,18 @@
+{
+  "agents": {
+    "foundry": {
+      "mode": "primary",
+      "prompt": "{file:.opencode/skills/foundry/SKILL.md}"
+    }
+  },
+  "mcpServers": {
+    "foundry-server": {
+      "command": "foundry",
+      "args": [
+        "mcp"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+llm:
+  default_provider: ollama
+  default_model: qwen3:8b
+  providers:
+    ollama:
+      type: ollama
+      base_url: http://localhost:11434
+      default_model: qwen3:8b
+      timeout_s: 120
+    openai:
+      type: openai
+      api_key: ${OPENAI_API_KEY}
+      base_url: https://api.openai.com/v1
+      default_model: gpt-4o
+  routing:
+    judge_provider: default
+    judge_model: ''
+    debate_agent_provider: default
+    debate_agent_model: ''
+    debate_consensus_provider: default
+    debate_consensus_model: ''

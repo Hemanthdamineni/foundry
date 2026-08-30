@@ -1,0 +1,35 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.db
+*.db-shm
+*.db-wal
+
+# --- pixi ---
+.pixi/
+
+# --- Runtime artifacts ---
+.foundry/
+data/
+logs/
+.sdlc/
+.opencode/agent/
+.opencode/skill/
+
+# --- Nested independent repos (have their own .git) ---
+installer/
+
+# --- Pre-retirement snapshot of public installer repo (preserved 21-commit history) ---
+_installer-remote-backup/
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+
+# --- OS ---
+.DS_Store
+Thumbs.db

@@ -1,0 +1,62 @@
+[workspace]
+authors = ["Hemanth Damineni <hemanthdamineni@gmail.com>"]
+channels = ["conda-forge"]
+name = "Helix"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+foundry = "python -m foundry.cli.main"
+test = "pytest tests/"
+test-quick = "pytest tests/ -q"
+lint = "ruff check src"
+
+[tasks.doctor]
+cmd = "python -m foundry.cli.main doctor"
+
+[tasks.serve]
+cmd = "python -m foundry.cli.main serve"
+
+[tasks.orchestrate]
+cmd = "python -m foundry.cli.main orchestrate"
+
+[tasks.sdlc]
+cmd = "python -m foundry.cli.main sdlc"
+
+[tasks.workspaces]
+cmd = "python -m foundry.cli.main workspaces"
+
+[tasks.auth]
+cmd = "python -m foundry.cli.main auth"
+
+[tasks.approve]
+cmd = "python -m foundry.cli.main approve"
+
+[tasks.eval]
+cmd = "python -m foundry.cli.main eval"
+
+[tasks.dashboard]
+cmd = "python -m foundry.cli.main dashboard"
+
+[tasks.mcp]
+cmd = "python -m foundry.cli.main mcp"
+
+[dependencies]
+python = "3.12.*"
+pip = "*"
+rust = ">=1.96.0,<1.97"
+
+[pypi-dependencies]
+sdlc-models = { path = "packages/sdlc-models", editable = true }
+sdlc-store = { path = "packages/sdlc-store", editable = true }
+sdlc-phases = { path = "packages/sdlc-phases", editable = true }
+sdlc-judge = { path = "packages/sdlc-judge", editable = true }
+sdlc-debate = { path = "packages/sdlc-debate", editable = true }
+sdlc-mcp = { path = "packages/sdlc-mcp", editable = true }
+foundry = { path = ".", editable = true }
+pytest = ">=8.0.0"
+pytest-asyncio = ">=0.24.0"
+httpx = ">=0.27.0"
+fastapi = ">=0.115.0"
+uvicorn = ">=0.30.0"
+aiosqlite = ">=0.20.0"

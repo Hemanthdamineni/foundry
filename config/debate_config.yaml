@@ -1,0 +1,15 @@
+debate:
+  planning:
+    enabled: true
+    rounds: 3
+    agents: 4
+    total_timeout_s: 90
+    per_round_timeout_s: 25
+  review:
+    enabled: true
+    rounds: 2
+    agents: 3
+    total_timeout_s: 60
+    per_round_timeout_s: 20
+  fallback_on_timeout: single_model
+  fallback_on_invalid_output: single_model

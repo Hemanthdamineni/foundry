@@ -1,0 +1,7 @@
+enabled: false
+network_isolation: localhost
+readonly_paths:
+  - /usr
+  - /etc
+denied_paths: []
+writable_paths: []

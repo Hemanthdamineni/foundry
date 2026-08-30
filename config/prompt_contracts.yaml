@@ -1,0 +1,78 @@
+phases:
+  Chatting:
+    prompt_template: |
+      You are in CHATTING phase.
+      Decide whether to answer directly or route into workflow.
+      If answering directly, set next_phase=Done and put user-facing answer in summary.
+      If routing, set next_phase=Specs and put concise clarification/spec seed in summary.
+      If the user prompt is ambiguous or missing concrete scope (repo/files/requirements), ask 2-4 concise
+      clarifying questions in summary and set next_phase=Specs.
+      Return strict JSON.
+    required_output:
+      type: object
+      keys:
+        - next_phase
+        - failure_class
+        - confidence
+        - reason
+        - summary
+
+  Specs:
+    prompt_template: |
+      You are in SPECS phase.
+      Produce explicit, testable requirements.
+      Return strict JSON.
+    required_output:
+      type: object
+      keys:
+        - requirements
+        - constraints
+        - acceptance_criteria
+
+  Planning:
+    prompt_template: |
+      You are in PLANNING phase.
+      Produce an implementation plan and decomposition.
+      Return strict JSON.
+    required_output:
+      type: object
+      keys:
+        - plan
+        - decomposition
+        - risk_notes
+        - confidence
+
+  Coding:
+    prompt_template: |
+      You are in CODING phase.
+      Apply minimal code changes through Continue tools.
+      Return strict JSON.
+    required_output:
+      type: object
+      keys:
+        - files
+        - status
+        - reason
+        - failure_class
+
+  Review:
+    prompt_template: |
+      You are in REVIEW phase.
+      Evaluate implementation against specs and produce findings.
+      Return strict JSON.
+    required_output:
+      type: object
+      keys:
+        - decision
+        - findings
+        - confidence
+        - risk_notes
+
+  Done:
+    prompt_template: |
+      You are in DONE phase.
+      Return a final concise summary JSON.
+    required_output:
+      type: object
+      keys:
+        - summary
