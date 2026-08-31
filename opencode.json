@@ -1,10 +1,21 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "agents": {
     "foundry": {
       "mode": "primary",
       "prompt": "{file:.opencode/skills/foundry/SKILL.md}"
     }
   },
+  "instructions": [
+    "{file:.opencode/context/project/README.md}",
+    "{file:.opencode/context/project/patterns.md}",
+    "{file:.opencode/context/project/style.md}",
+    "{file:.opencode/context/project/testing.md}",
+    "{file:.opencode/context/project/security.md}",
+    "{file:.opencode/context/sdlc/architecture.md}",
+    "{file:.opencode/context/sdlc/phase-guide.md}",
+    "{file:.opencode/context/sdlc/quality.md}"
+  ],
   "mcpServers": {
     "foundry-server": {
       "command": "foundry",
