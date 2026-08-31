@@ -12,6 +12,11 @@ __pycache__/
 # --- pixi ---
 .pixi/
 
+# --- Build artifacts (python -m build) ---
+dist/
+build/
+*.egg-info/
+
 # --- Runtime artifacts ---
 .foundry/
 data/
