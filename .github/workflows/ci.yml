@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: prefix-dev/setup-pixi@main
+        with:
+          pixi-version: latest
+          cache: true
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: pixi install
+      - name: Lint
+        run: pixi run lint
+      - name: Test
+        run: pixi run test
